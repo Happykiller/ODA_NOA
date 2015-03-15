@@ -1,0 +1,150 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <!--META-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="API/css/themes/default/jquery.mobile.min.css" />
+    <!--<link rel="stylesheet" href="API/css/datatables/css/jquery.dataTables.css"/>--> 
+    <link rel="stylesheet" href="API/css/mycss.css" />
+    <link rel="stylesheet" href="css/mycss.css" />
+
+    <!--JS-->
+    <script type="text/javascript" src="API/js/jquery.min.js"></script>
+    <script type="text/javascript" src="API/js/jquery.mobile.min.js"></script>
+    <!--<script type="text/javascript" src="API/js/highcharts.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/modules/exporting.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/jquery.dataTables.min.js"></script>--> 
+    <script type="text/javascript" src="include/config.js"></script>
+    <script type="text/javascript" src="API/js/fonctions.js"></script>
+    <script type="text/javascript" src="js/fonctions.js"></script>
+
+    <script type="text/javascript">
+    checkMaintenance();
+    checkAuthentification();
+    
+    ///////////////////
+    //BLOCK VARIABLE GLOBAL
+    ///////////////////
+    var id_page = 0;
+
+    ///////////////////
+    //BLOCK FONCTIONS EVENEMENTS
+    ///////////////////
+    //A la construction de la page
+    $(document).on('pageinit',function() {
+        try {
+            // Init commmun
+            init_commun();
+
+            // Init page
+        } catch (er) {
+            log(0, "ERROR(init_home):" + er.message);
+        }
+    });
+
+    //Affichage de la page avant onload
+    $(document).on('pageshow',function() {
+        try {
+            show_commun();
+        } catch (er) {
+            log(0, "ERROR(show):" + er.message);
+        }
+    });
+
+    //Fin chargement page
+    function OnLoad() {
+        try {
+            chargerExemple();
+        } catch (er) {
+            log(0, "ERROR(OnLoad):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS METIER
+    ///////////////////
+    /**
+     * @name chargerExemple
+     * @desc Hello
+     * @param {type} nom
+     * @return {type}
+     */
+    function chargerExemple(){
+        try {
+            notification("Merci de patienter ...", _INFO);
+            var tabInput = { };
+            callBD("phpsql/exemple.php", "POST", "json", tabInput, "retourExemple");            
+        } catch (er) {
+            log(0, "ERROR(chargerExemple):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS AFFICHAGE
+    ///////////////////
+    /**
+     * @name retourExemple
+     * @param {json} p_retour
+     */
+    function retourExemple(p_retour){
+        try {
+            if(p_retour["strErreur"] == ""){
+                var strhtml = "Hello";
+                $('#div_exemple').html(strhtml);
+            } else{
+                notification("Erreur : "+p_retour["strErreur"], _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(retourExemple):" + er.message);
+        }
+    }
+</script>
+
+</head>
+<body onload="OnLoad();">
+
+    <!-- page -->
+    <div data-role="page" data-title="Titre">
+
+        <!-- /panel -->
+        <div data-role="panel" id="mypanel" data-display="overlay" data-position="left">
+
+        </div>
+        <!-- /panel -->
+
+        <!-- header -->
+        <div data-role="header" data-position="fixed">
+            <a href="#mypanel" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+            <h1 id="id_titre">titre</h1>
+            <a href="javascript:window.location = ('./page_contact.html?mili='+getMilise());" data-role="button" data-icon="info" data-iconpos="notext">Contact</a>
+        </div>
+        <!-- /header -->
+        
+        <!-- navbar -->
+        <!-- /navbar -->
+
+        <!-- content -->
+        <div data-role="content" id="main_content">
+            <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                <h4>Le vide</h4>
+                <div id="div_exemple">Anomalie code EXXX</div>
+            </div>       
+        </div>
+        <!-- /content -->
+
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed">
+            <a data-role="button" data-icon="search" data-iconpos="notext" class="ui-btn-left" href="javascript:window.location = ('./page_faq.html?mili='+getMilise());">FAQ</a>
+            <h1 id="id_affichageUser">User</h1>
+            <a data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right" href="javascript:window.location = ('./page_sortie.html?mili='+getMilise());">Logout</a>
+        </div>
+        <!-- /footer -->
+
+    </div>
+    <!-- /page -->
+</body>
+</html>

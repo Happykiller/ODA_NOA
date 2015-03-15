@@ -1,0 +1,1 @@
+python script_wrkdir.py exemple.config.wrkdir.json build

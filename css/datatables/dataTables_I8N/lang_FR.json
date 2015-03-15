@@ -1,0 +1,22 @@
+{
+    "oPaginate": {
+        "sFirst": "Première",
+        "sLast": "Dernière",
+        "sNext": "Suivante",
+        "sPrevious": "Précédente"
+    },
+    "oAria": {
+        "sSortAscending": " - click/return to sort ascending",
+        "sSortDescending": " - click/return to sort descending"
+    },
+    "sEmptyTable": "No data available in table",
+    "sInfo": "Sur un total de _TOTAL_ entrées à afficher (_START_ à _END_)",
+    "sInfoEmpty": "No entries to show",
+    "sInfoFiltered": " - filtering from _MAX_ records",
+    "sInfoThousands": "'",
+    "sLengthMenu": "Afficher _MENU_ enregistrements",
+    "sLoadingRecords": "Please wait - loading...",
+    "sProcessing": "DataTables is currently busy",
+    "sSearch": "Filtrer les enregistrements:",
+    "sZeroRecords": "No records to display"
+}

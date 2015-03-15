@@ -1,0 +1,144 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <!--META-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="API/css/themes/default/jquery.mobile.min.css" />
+    <!--<link rel="stylesheet" href="css/datatables/css/jquery.dataTables.css"/>--> 
+    <link rel="stylesheet" href="API/css/mycss.css" />
+    <link rel="stylesheet" href="css/mycss.css" />
+
+    <!--JS-->
+    <script type="text/javascript" src="API/js/jquery.min.js"></script>
+    <script type="text/javascript" src="API/js/jquery.mobile.min.js"></script>
+    <!--<script type="text/javascript" src="API/js/highcharts.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/modules/exporting.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/jquery.dataTables.min.js"></script>-->
+    <script type="text/javascript" src="include/config.js"></script>
+    <script type="text/javascript" src="API/js/fonctions.js"></script>
+    <script type="text/javascript" src="js/fonctions.js"></script>
+
+    <script type="text/javascript">
+    checkMaintenance();
+    checkAuthentification();
+    
+    ///////////////////
+    //BLOCK VARIABLE GLOBAL
+    ///////////////////
+    var id_page = 23;
+
+    ///////////////////
+    //BLOCK FONCTIONS EVENEMENTS
+    ///////////////////
+    //A la construction de la page
+    $(document).on('pageinit',function() {
+        try {
+            // Init commmun
+            init_commun();
+
+            // Init page
+        }
+        catch (er) {
+            log(0, "ERROR(init_home):" + er.message);
+        }
+    });
+
+    //Affichage de la page avant onload
+    $(document).on('pageshow',function() {
+        try {
+            show_commun();
+        }
+        catch (er) {
+            log(0, "ERROR(show):" + er.message);
+        }
+    });
+
+    //Fin chargement page
+    function OnLoad() {
+        try {
+            chargerLogImportOceane();
+        }
+        catch (er) {
+            log(0, "ERROR(refreshG):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS METIER
+    ///////////////////
+    function chargerLogImportOceane() {
+        try {
+            var strHtml = "";
+            
+            var tabInput = { };
+            var retour = callBD("Scripts_python/import_oceane/script_import_oceane.py.log", "GET", "text", tabInput);
+            
+            var arrayRetour = retour.split("\n");
+            
+            var nbLigneAfficher = 50;
+            var nbLigne = arrayRetour.length - 1;
+            for (i = nbLigne; i > 0; i--) {
+                strHtml += arrayRetour[i]+"<br>";
+                nbLigneAfficher--;
+                if(nbLigneAfficher <= 0){
+                    break;
+                }
+            }
+            
+            $('#div_import_oceane').html(strHtml).trigger("create");
+        }
+        catch (er) {
+            log(0, "ERROR(chargerLogImportOceane):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS AFFICHAGE
+    ///////////////////
+</script>
+
+</head>
+<body onload="OnLoad();">
+
+    <!-- page -->
+    <div data-role="page" data-title="Titre">
+
+        <!-- /panel -->
+        <div data-role="panel" id="mypanel" data-display="overlay" data-position="left">
+
+        </div>
+        <!-- /panel -->
+
+        <!-- header -->
+        <div data-role="header" data-position="fixed">
+            <a href="#mypanel" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+            <h1 id="id_titre">titre</h1>
+            <a href="javascript:window.location = ('./page_contact.html?mili='+getMilise());" data-role="button" data-icon="info" data-iconpos="notext">Contact</a>
+        </div>
+        <!-- /header -->
+
+        <!-- content -->
+        <div data-role="content" id="main_content">
+            <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                <h4>Import Oc&eacute;ane</h4>
+                <div id="div_import_oceane">Anomalie code EXXX</div>
+            </div>
+        </div>
+        <!-- /content -->
+
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed">
+            <a data-role="button" data-icon="search" data-iconpos="notext" class="ui-btn-left" href="javascript:window.location = ('./page_faq.html?mili='+getMilise());">FAQ</a>
+            <h1 id="id_affichageUser">User</h1>
+            <a data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right" href="javascript:window.location = ('./page_sortie.html?mili='+getMilise());">Logout</a>
+        </div>
+        <!-- /footer -->
+
+    </div>
+    <!-- /page -->
+</body>
+</html>

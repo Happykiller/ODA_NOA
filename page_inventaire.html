@@ -1,0 +1,1492 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <!--META-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="API/css/themes/default/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="API/css/datatables/css/jquery.dataTables.css"/> 
+    <link rel="stylesheet" href="API/css/mycss.css" />
+    <link rel="stylesheet" href="css/mycss.css" />
+
+    <!--JS-->
+    <script type="text/javascript" src="API/js/jquery.min.js"></script>
+    <script type="text/javascript" src="API/js/jquery.mobile.min.js"></script>
+    <!--<script type="text/javascript" src="API/js/highcharts.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/modules/exporting.js"></script>-->
+    <script type="text/javascript" src="API/js/jquery.dataTables.min.js"></script> 
+    <script type="text/javascript" src="include/config.js"></script>
+    <script type="text/javascript" src="API/js/fonctions.js"></script>
+    <script type="text/javascript" src="js/fonctions.js"></script>
+
+    <script type="text/javascript">
+    checkMaintenance();
+    checkAuthentification();
+    
+    ///////////////////
+    //BLOCK VARIABLE GLOBAL
+    ///////////////////
+    var id_page = 22;
+    
+    var g_couleurFontBon = "#04B404";
+    var g_couleurFontMauvais = "#FF0000";
+    var g_couleurFontDefaut = "#333333";
+    var g_couleurFontTips = "#a1a1a1";
+    
+    var g_tab_testInput = new Array();
+    g_tab_testInput["input_filtre_version"]=false; 
+    
+    var withParamGet = true;
+    
+    var g_filtres = {
+        filtre_auteurs : {
+            type : "filtre",
+            nom_cle : "filtre_auteurs",
+            nom_champs_bd : "auteurs",  
+            nom_champs_interface : "core_auteur",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        autocomplete_filtre_auteurs : {
+            type : "autocomplete",
+            nom_cle : "filtre_auteurs",
+            taille_autocomple_min : 2,
+            nom_interface : "mysql_getFiltreAuteur"
+        },
+        filtre_dateTime_creation : {
+            type : "filtre_date",
+            nom_cle : "filtre_dateTime_creation",
+            nom_champs_bd : "dateTime_creation",  
+            nom_champs_interface : "core_dateTime_creation"
+        },
+        filtre_dateTime_modification : {
+            type : "filtre_date",
+            nom_cle : "filtre_dateTime_modification",
+            nom_champs_bd : "dateTime_modification",  
+            nom_champs_interface : "core_dateTime_modification"
+        },
+        filtre_nature : {
+            type : "filtre_list",
+            nom_cle : "filtre_nature",
+            id_type : 28,
+            nom_champs_bd : "nature",  
+            nom_champs_interface : "core_nature",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        filtre_categorie : {
+            type : "filtre_list",
+            nom_cle : "filtre_categorie",
+            id_type : 12,
+            nom_champs_bd : "categorie",  
+            nom_champs_interface : "core_categorie",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        filtre_sous_categorie : {
+            type : "filtre_list",
+            nom_cle : "filtre_sous_categorie",
+            id_type : 13,
+            nom_champs_bd : "sous_categorie",  
+            nom_champs_interface : "core_sous_categorie",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        filtre_priorite : {
+            type : "filtre_list",
+            nom_cle : "filtre_priorite",
+            id_type : 15,
+            nom_champs_bd : "priorite",  
+            nom_champs_interface : "core_priorite",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        filtre_criticite : {
+            type : "filtre_list",
+            nom_cle : "filtre_criticite",
+            id_type : 16,
+            nom_champs_bd : "criticite",  
+            nom_champs_interface : "core_criticite",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        filtre_statut : {
+            type : "filtre_list",
+            nom_cle : "filtre_statut",
+            id_type : 9,
+            nom_champs_bd : "statut",  
+            nom_champs_interface : "core_statut",     
+            max_taille : 7,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        filtre_causes_tags : {
+            type : "filtre_list",
+            nom_cle : "filtre_causes_tags",
+            id_type : 20,
+            nom_champs_bd : "causes_tags",  
+            nom_champs_interface : "core_causes_tags",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        } ,
+        filtre_impacts_tags : {
+            type : "filtre_list",
+            nom_cle : "filtre_impacts_tags",
+            id_type : 21,
+            nom_champs_bd : "impacts_tags",  
+            nom_champs_interface : "core_impacts_tags",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        } ,
+        filtre_repro_tags : {
+            type : "filtre_list",
+            nom_cle : "filtre_repro_tags",
+            id_type : 22,
+            nom_champs_bd : "repro_tags",  
+            nom_champs_interface : "core_repro_tags",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        } ,
+        filtre_reso_tags : {
+            type : "filtre_list",
+            nom_cle : "filtre_reso_tags",
+            id_type : 23,
+            nom_champs_bd : "reso_tags",  
+            nom_champs_interface : "core_reso_tags",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        } ,
+        filtre_complexite : {
+            type : "filtre_list",
+            nom_cle : "filtre_complexite",
+            id_type : 17,
+            nom_champs_bd : "complexite",  
+            nom_champs_interface : "core_complexite",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        } ,
+        filtre_env_ori : {
+            type : "filtre_list",
+            nom_cle : "filtre_env_ori",
+            id_type : 19,
+            nom_champs_bd : "env_ori",  
+            nom_champs_interface : "core_env_ori",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        } ,
+        filtre_env_dest : {
+            type : "filtre_list",
+            nom_cle : "filtre_env_dest",
+            id_type : 50,
+            nom_champs_bd : "env_dest",  
+            nom_champs_interface : "core_env_dest",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        filtre_respon : {
+            type : "filtre",
+            nom_cle : "filtre_respon",
+            nom_champs_bd : "respon",  
+            nom_champs_interface : "core_respon",     
+            max_taille : 2,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        autocomplete_filtre_respon : {
+            type : "autocomplete",
+            nom_cle : "filtre_respon",
+            taille_autocomple_min : 2,
+            nom_interface : "mysql_getRespon"
+        },
+        filtre_relations : {
+            type : "filtre",
+            nom_cle : "filtre_relations",
+            nom_champs_bd : "relations",  
+            nom_champs_interface : "core_relations",     
+            max_taille : 3,
+            nom_interface_ajout : "mysql_ajouterFiltre",
+            nom_interface_supprimer : "mysql_supprimerFiltre"
+        },
+        autocomplete_filtre_relations : {
+            type : "autocomplete",
+            nom_cle : "filtre_relations",
+            taille_autocomple_min : 4,
+            nom_interface : "mysql_getTicketsAutoCompl"
+        }    
+    };
+    
+    var g_filtres_user;
+    var g_tags;
+
+    ///////////////////
+    //BLOCK FONCTIONS EVENEMENTS
+    ///////////////////
+    //A la construction de la page
+    $(document).on('pageinit',function() {
+        try {
+            // Init commmun
+            init_commun();
+
+            // Init page
+        } catch (er) {
+            log(0, "ERROR(init_home):" + er.message);
+        }
+    });
+
+    //Affichage de la page avant onload
+    $(document).on('pageshow',function() {
+        try {
+            show_commun();
+        } catch (er) {
+            log(0, "ERROR(show):" + er.message);
+        }
+    });
+
+    //Fin chargement page
+    function OnLoad() {
+        try {
+            chargerTags();
+            chargerFiltres();
+            chargerTickets();
+        } catch (er) {
+            log(0, "ERROR(OnLoad):" + er.message);
+        }
+    }
+    
+    function ecoute(p_obj, p_eventCode) {
+        try {
+
+            switch (p_eventCode) 
+            { 
+                case 13: 
+                    onblurInput(p_obj);
+                    break; 
+                default: 
+                    break; 
+            }
+       } catch (er) {
+            log(0, "ERROR(ecoute):" + er.message);
+        }
+    }
+
+    function onblurInput(p_obj) {
+        try {
+            $("#tips_"+p_obj.name).text("");
+            
+            switch (p_obj.name) 
+            {
+                case "input_filtre_version" : 
+                    var Model=/^[0-9]{1,2}$/g;
+                    var test = p_obj.value.match(Model);
+                    if(test != null){
+                        $("#label_"+p_obj.name).css("color", g_couleurFontBon);
+                        g_tab_testInput[p_obj.name]=true;
+                    }else{
+                        $("#label_"+p_obj.name).css("color", g_couleurFontMauvais);
+                        g_tab_testInput[p_obj.name]=false;
+                    }
+                    break;
+                    
+                default: 
+                    break; 
+            }
+       } catch (er) {
+            log(0, "ERROR(checkIntput):" + er.message);
+        }
+    }
+
+    function onfocusInput(p_obj) {
+        try {
+            $("#label_"+p_obj.name).css("color", g_couleurFontDefaut);
+            $("#tips_"+p_obj.name).css("color", g_couleurFontTips);
+            $("#msgRetour").text("");
+
+            switch (p_obj.name) 
+            {
+                case "input_filtre_version" :
+                    $("#tips_"+p_obj.name).html("Entre 1 et 99");
+                    break;
+                default: 
+                    break; 
+            }
+       } catch (er) {
+            log(0, "ERROR(onfocusInput):" + er.message);
+        }
+    }
+    
+    function onChangeInput(p_obj) {
+        try {
+            
+        } catch (er) {
+            log(0, "ERROR(onChangeInput):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS METIER
+    ///////////////////
+    /**
+     * @name chargerFiltres
+     * @desc Chargement des filtres
+     * @param {type} p_filtre
+     */
+    function chargerFiltres(p_filtre) {
+        try {
+            var tabInput = { code_user : auth};
+            var json_filtres = callBD("phpsql/mysql_getFiltresUser.php", "POST", "json", tabInput);
+            
+            g_filtres_user = json_filtres["data"]["resultat"];
+            
+            if(g_filtres_user['dateTime_creation']=='0000-00-00 00:00:00'){
+                g_filtres_user['dateTime_creation'] = '';
+            }
+            
+            if(g_filtres_user['dateTime_modification']=='0000-00-00 00:00:00'){
+                g_filtres_user['dateTime_modification'] = '';
+            }
+            
+            var conf_filtres = new Array;
+            if((p_filtre != null)&&(typeof p_filtre != "undefined")){
+                conf_filtres = [g_filtres[p_filtre]];
+            }else{
+                conf_filtres = g_filtres;
+            }
+            
+            //Parcours des filtres
+            for(var indice in conf_filtres){
+                
+                //Récupère données
+                var nom_champs_bd = conf_filtres[indice]["nom_champs_bd"];
+                var filtre_valeur = g_filtres_user[nom_champs_bd];
+                var filtre_nom = conf_filtres[indice]["nom_cle"];
+                var filtre_tab_valeurs = getArrayFromFiltre(filtre_valeur);
+                
+                //chargement générique
+                switch (conf_filtres[indice]["type"]) 
+                {
+                    case "filtre" : 
+                        var strhtml = "";
+                        
+                        //Ajoute le(s) tag(s)
+                        strhtml += transformeFiltre(filtre_tab_valeurs, filtre_nom);
+                        $("#div_"+filtre_nom).html(strhtml).trigger('create');
+
+                        //Ajout le l'input
+                        if(filtre_tab_valeurs.length < conf_filtres[indice]["max_taille"]){
+                            strhtml += "<ul id=\"autocomplete_"+filtre_nom+"\" data-role=\"listview\" data-inset=\"true\" data-filter=\"true\" data-filter-placeholder=\""+g_filtres["autocomplete_"+filtre_nom]["taille_autocomple_min"]+" lettres au moins...\"></ul>";
+
+                            $("#div_"+filtre_nom).html(strhtml).trigger('create');
+
+                            $( "#autocomplete_"+filtre_nom).on( "filterablebeforefilter", function ( e, data ) {
+                                var $ul = $( this );
+                                var $input = $( data.input );
+                                var value = $input.val();
+                                var id = this.id;
+                                var html = "";
+                                $ul.html( "" );
+                                var taille_autocomple_min = g_filtres[id]["taille_autocomple_min"];
+                                var nom_interface = g_filtres[id]["nom_interface"];
+                                var nom_cle = g_filtres[id]["nom_cle"];
+                                if ( value && value.length >= taille_autocomple_min ) {
+                                    $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+                                    $ul.listview( "refresh" );
+                                    var tabInput = { recherche : value };
+                                    var json_retour = callBD("phpsql/"+nom_interface+".php", "POST", "json", tabInput);
+                                    for(var indice in json_retour["data"]["resultat"]["data"]){
+                                        html += "<li><a href=\"javascript:ajouterFiltre('"+nom_cle+"', '"+json_retour["data"]["resultat"]["data"][indice]["valeur"]+"')\">"+json_retour["data"]["resultat"]["data"][indice]["valeur"]+"</a></li>";
+                                    }
+                                    $ul.html( html );
+                                    $ul.listview( "refresh" );
+                                    $ul.trigger( "updatelayout");
+                                }
+                            });
+                        }
+                        break;
+                    case "filtre_list" : 
+                        var strhtml = "";
+
+                        //Ajoute le(s) tag(s)
+                        strhtml += transformeFiltre(filtre_tab_valeurs, filtre_nom);
+
+                        //Ajout le l'input
+                        if(filtre_tab_valeurs.length < conf_filtres[indice]["max_taille"]){
+                            var json_tags = getTagsByType(g_tags,conf_filtres[indice]["id_type"]);
+                            strhtml += "<select name=\"input_"+filtre_nom+"\" id=\"input_"+filtre_nom+"\" onchange=\"ajouterFiltre('"+filtre_nom+"', this.value);\" data-mini=\"true\">";
+                            strhtml += "<option value=\"\" Selected>N.A.</option>";
+                            for(var indice0 in json_tags){
+                                if(!isInArray(json_tags[indice0]["id"],filtre_tab_valeurs)){
+                                    strhtml += "<option value=\""+json_tags[indice0]["id"]+"\">"+json_tags[indice0]["label"]+"</option>";
+                                }
+                            }
+                            strhtml += "</select>";
+                        }
+
+                        var divFiltre = "#div_"+filtre_nom;
+                        $(divFiltre).html(strhtml).trigger('create');
+                        break;
+                        
+                    case "autocomplete" :  
+                    case "filtre_date" :
+                    default: 
+                        break; 
+                }
+            }
+            
+            //Chargement pour les filtres non générique
+            if(typeof p_filtre == "undefined"){
+                /*dateTime_creation*/
+                var nomFiltre = "filtre_dateTime_creation";
+                var dateTime_creation = g_filtres_user["dateTime_creation"];
+                var dateTime_creation_option = g_filtres_user["dateTime_creation_option"];
+                var strHtml = "";
+                strHtml += "<select name=\"input_"+nomFiltre+"_option\" id=\"input_"+nomFiltre+"_option\" onchange=\"onChangeInput(this);\" data-mini=\"true\">";
+                strHtml += "<option value=\"\">N.A.</option>";
+                if(dateTime_creation_option == "AV"){
+                    strHtml += "<option value=\"AV\" selected>Avant</option>";
+                }else{
+                    strHtml += "<option value=\"AV\">Avant</option>";
+                }
+                if(dateTime_creation_option == "EG"){
+                    strHtml += "<option value=\"EG\" selected>Egale</option>";
+                }else{
+                    strHtml += "<option value=\"EG\">Egale</option>";
+                }
+                if(dateTime_creation_option == "AP"){
+                    strHtml += "<option value=\"AP\" selected>Apr&egrave;s</option>";
+                }else{
+                    strHtml += "<option value=\"AP\">Apr&egrave;s</option>";
+                }
+                strHtml += "</select>";
+                $('#div_'+nomFiltre).html(strHtml).trigger("create");
+
+                var strDateCreation = getDateTfromDateUs(dateTime_creation);
+                var idCalendar = '#calendar_'+nomFiltre;
+                $(idCalendar).val(strDateCreation);
+                
+                if(!isDateSupported()){
+                    var strHtml = "Format : 2013-01-01T00:00:00";
+                    $("#tips_calendar_"+nomFiltre).css("color", g_couleurFontTips);
+                    $("#tips_calendar_"+nomFiltre).html(strHtml).trigger("create");
+                }
+
+                /*dateTime_modification*/
+                var nomFiltre = "filtre_dateTime_modification";
+                var dateTime_modification = g_filtres_user["dateTime_modification"];
+                var dateTime_modification_option = g_filtres_user["dateTime_modification_option"];
+                var strHtml = "";
+                strHtml += "<select name=\"input_"+nomFiltre+"_option\" id=\"input_"+nomFiltre+"_option\" onchange=\"onChangeInput(this);\" data-mini=\"true\">";
+                strHtml += "<option value=\"\">N.A.</option>";
+                if(dateTime_modification_option == "AV"){
+                    strHtml += "<option value=\"AV\" selected>Avant</option>";
+                }else{
+                    strHtml += "<option value=\"AV\">Avant</option>";
+                }
+                if(dateTime_modification_option == "EG"){
+                    strHtml += "<option value=\"EG\" selected>Egale</option>";
+                }else{
+                    strHtml += "<option value=\"EG\">Egale</option>";
+                }
+                if(dateTime_modification_option == "AP"){
+                    strHtml += "<option value=\"AP\" selected>Apr&egrave;s</option>";
+                }else{
+                    strHtml += "<option value=\"AP\">Apr&egrave;s</option>";
+                }
+                strHtml += "</select>";
+                $('#div_'+nomFiltre).html(strHtml).trigger("create");
+
+                var strDateTime_modification = getDateTfromDateUs(dateTime_modification);
+                var idCalendar = '#calendar_'+nomFiltre;
+                $(idCalendar).val(strDateTime_modification);
+                
+                if(!isDateSupported()){
+                    var strHtml = "Format : 2013-01-01T00:00:00";
+                    $("#tips_calendar_"+nomFiltre).css("color", g_couleurFontTips);
+                    $("#tips_calendar_"+nomFiltre).html(strHtml).trigger("create");
+                }
+                
+                /*label*/
+                var strHtml = g_filtres_user["label"];
+                $('#filtre_label').val(strHtml);
+                
+                /*description*/
+                var strHtml = g_filtres_user["description"];
+                $('#filtre_description').val(strHtml);
+                
+                /*version*/
+                var strHtml = "";
+                if(g_filtres_user["version"] != "0"){
+                    strHtml = g_filtres_user["version"];
+                }
+                $('#input_filtre_version').val(strHtml);
+                      
+                /*impactNote*/
+                var strHtml = g_filtres_user["impactNote"];
+                $('#filtre_impactNote').val(strHtml);
+                      
+                /*causeNote*/
+                var strHtml = g_filtres_user["causeNote"];
+                $('#filtre_causeNote').val(strHtml);
+                      
+                /*resoNote*/
+                var strHtml = g_filtres_user["resoNote"];
+                $('#filtre_resoNote').val(strHtml);
+                      
+                /*reproNote*/
+                var strHtml = g_filtres_user["reproNote"];
+                $('#filtre_reproNote').val(strHtml);
+            }
+        } catch (er) {
+            log(0, "ERROR(chargerFiltres):" + er.message);
+        }
+    }
+    
+    /**
+     * @name supprimerFiltre
+     * @param {type} p_cle_filtre
+     * @param {type} p_valeur
+     */
+    function supprimerFiltre(p_cle_filtre, p_valeur) {
+        try {
+            var tabInput = { champs : g_filtres[p_cle_filtre]["nom_champs_bd"], code_user : auth, valeur : p_valeur};
+            var json_retour = callBD("phpsql/"+g_filtres[p_cle_filtre]["nom_interface_supprimer"]+".php", "POST", "json", tabInput);
+            if(json_retour["strErreur"] == ""){
+                chargerFiltres(p_cle_filtre);
+            }else{
+                notification("Erreur sur la suppression du filtre.("+json_retour["strErreur"]+")",_ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(supprimerFiltre):" + er.message);
+        }
+    }
+    
+    /**
+     * @name ajouterFiltre
+     * @param {type} p_cle_filtre
+     * @param {type} p_valeur
+     */
+    function ajouterFiltre(p_cle_filtre, p_valeur) {
+        try {
+            if(p_valeur != ''){
+                $( "#autocomplete_"+p_cle_filtre).html("");
+                $( "#autocomplete_"+p_cle_filtre).listview( "refresh" );
+                $( "#autocomplete_"+p_cle_filtre).trigger( "updatelayout");
+                
+                var tabInput = { champs : g_filtres[p_cle_filtre]["nom_champs_bd"], code_user : auth, valeur : p_valeur};
+                var json_retour = callBD("phpsql/"+g_filtres[p_cle_filtre]["nom_interface_ajout"]+".php", "POST", "json", tabInput);
+
+                if(json_retour["strErreur"] == ""){
+                   chargerFiltres(p_cle_filtre);
+                }else{
+                    notification("Erreur sur l'ajout du filtre.("+json_retour["strErreur"]+")",_ALERT);
+                }
+            }
+            
+        } catch (er) {
+            log(0, "ERROR(ajouterFiltre):" + er.message);
+        }
+    }
+    
+    /**
+     * Charge les tickets de l'inventaire
+     */
+    function chargerTickets() {
+        try {
+            var filtres = {};
+            
+            var filtreGet = getParamGet("filtreGet");
+            
+            if((filtreGet == "ok")&&(withParamGet)){
+                $('#content_filtre').collapsible( "collapse" );
+                var core_id  				= getParamGet("core_id");  
+                if (core_id != null){
+                    filtres["core_id"] = core_id;
+                }
+                var core_auteur                         = getParamGet("core_auteur");
+                if (core_auteur != null){
+                    filtres["core_auteur"] = core_auteur;
+                }
+                var core_auteur_option                  = getParamGet("core_auteur_option");
+                if (core_auteur_option != null){
+                    filtres["core_auteur_option"] = core_auteur_option;
+                }
+                var core_dateTime_creation              = getParamGet("core_dateTime_creation");
+                if (core_dateTime_creation != null){
+                    filtres["core_dateTime_creation"] = core_dateTime_creation;
+                }
+                var core_dateTime_creation_option       = getParamGet("core_dateTime_creation_option");
+                if (core_dateTime_creation_option != null){
+                    filtres["core_dateTime_creation_option"] = core_dateTime_creation_option;
+                }
+                var core_dateTime_modification          = getParamGet("core_dateTime_modification");
+                if (core_dateTime_modification != null){
+                    filtres["core_dateTime_modification"] = core_dateTime_modification;
+                }
+                var core_dateTime_modification_option   = getParamGet("core_dateTime_modification_option");
+                if (core_dateTime_modification_option != null){
+                    filtres["core_dateTime_modification_option"] = core_dateTime_modification_option;
+                }
+                var core_nature                         = getParamGet("core_nature");
+                if (core_nature != null){
+                    filtres["core_nature"] = core_nature;
+                }
+                var core_nature_option                  = getParamGet("core_nature_option");
+                if (core_nature_option != null){
+                    filtres["core_nature_option"] = core_nature_option;
+                }
+                var core_categorie                      = getParamGet("core_categorie");
+                if (core_categorie != null){
+                    filtres["core_categorie"] = core_categorie;
+                }
+                var core_categorie_option               = getParamGet("core_categorie_option");
+                if (core_categorie_option != null){
+                    filtres["core_categorie_option"] = core_categorie_option;
+                }
+                var core_sous_categorie                 = getParamGet("core_sous_categorie");
+                if (core_sous_categorie != null){
+                    filtres["core_sous_categorie"] = core_sous_categorie;
+                }
+                var core_sous_categorie_option          = getParamGet("core_sous_categorie_option");
+                if (core_sous_categorie_option != null){
+                    filtres["core_sous_categorie_option"] = core_sous_categorie_option;
+                }
+                var core_priorite                       = getParamGet("core_priorite");
+                if (core_priorite != null){
+                    filtres["core_priorite"] = core_priorite;
+                }
+                var core_priorite_option                = getParamGet("core_priorite_option");
+                if (core_priorite_option != null){
+                    filtres["core_priorite_option"] = core_priorite_option;
+                }
+                var core_criticite                      = getParamGet("core_criticite");
+                if (core_criticite != null){
+                    filtres["core_criticite"] = core_criticite;
+                }
+                var core_criticite_option               = getParamGet("core_criticite_option");
+                if (core_criticite_option != null){
+                    filtres["core_criticite_option"] = core_criticite_option;
+                }
+                var core_statut                         = getParamGet("core_statut");
+                if (core_statut != null){
+                    filtres["core_statut"] = core_statut;
+                }
+                var core_statut_option                  = getParamGet("core_statut_option");
+                if (core_statut_option != null){
+                    filtres["core_statut_option"] = core_statut_option;
+                }
+                var core_causes_tags                    = getParamGet("core_causes_tags");
+                if (core_causes_tags != null){
+                    filtres["core_causes_tags"] = core_causes_tags;
+                }
+                var core_causes_tags_option             = getParamGet("core_causes_tags_option");
+                if (core_causes_tags_option != null){
+                    filtres["core_causes_tags_option"] = core_causes_tags_option;
+                }
+                var core_impacts_tags                   = getParamGet("core_impacts_tags");
+                if (core_impacts_tags != null){
+                    filtres["core_impacts_tags"] = core_impacts_tags;
+                }
+                var core_impacts_tags_option            = getParamGet("core_impacts_tags_option");
+                if (core_impacts_tags_option != null){
+                    filtres["core_impacts_tags_option"] = core_impacts_tags_option;
+                }
+                var core_repro_tags                     = getParamGet("core_repro_tags");
+                if (core_repro_tags != null){
+                    filtres["core_repro_tags"] = core_repro_tags;
+                }
+                var core_repro_tags_option              = getParamGet("core_repro_tags_option");
+                if (core_repro_tags_option != null){
+                    filtres["core_repro_tags_option"] = core_repro_tags_option;
+                }
+                var core_reso_tags                      = getParamGet("core_reso_tags");
+                if (core_reso_tags != null){
+                    filtres["core_reso_tags"] = core_reso_tags;
+                }
+                var core_reso_tags_option               = getParamGet("core_reso_tags_option");
+                if (core_reso_tags_option != null){
+                    filtres["core_reso_tags_option"] = core_reso_tags_option;
+                }
+                var core_complexite                     = getParamGet("core_complexite");
+                if (core_complexite != null){
+                    filtres["core_complexite"] = core_complexite;
+                }
+                var core_complexite_option              = getParamGet("core_complexite_option");
+                if (core_complexite_option != null){
+                    filtres["core_complexite_option"] = core_complexite_option;
+                }
+                var core_env_ori                        = getParamGet("core_env_ori");
+                if (core_env_ori != null){
+                    filtres["core_env_ori"] = core_env_ori;
+                }
+                var core_env_ori_option                 = getParamGet("core_env_ori_option");
+                if (core_env_ori_option != null){
+                    filtres["core_env_ori_option"] = core_env_ori_option;
+                }
+                var core_env_dest                       = getParamGet("core_env_dest");
+                if (core_env_dest != null){
+                    filtres["core_env_dest"] = core_env_dest;
+                }
+                var core_env_dest_option                = getParamGet("core_env_dest_option");
+                if (core_env_dest_option != null){
+                    filtres["core_env_dest_option"] = core_env_dest_option;
+                }
+                var core_respon                         = getParamGet("core_respon");
+                if (core_respon != null){
+                    filtres["core_respon"] = core_respon;
+                }
+                var core_respon_option                  = getParamGet("core_respon_option");
+                if (core_respon_option != null){
+                    filtres["core_respon_option"] = core_respon_option;
+                }
+                var core_label                          = getParamGet("core_label");
+                if (core_label != null){
+                    filtres["core_label"] = core_label;
+                }
+                var core_description                    = getParamGet("core_description");
+                if (core_description != null){
+                    filtres["core_description"] = core_description;
+                }
+                var core_relations                      = getParamGet("core_relations");
+                if (core_relations != null){
+                    filtres["core_relations"] = core_relations;
+                }
+                var core_relations_option               = getParamGet("core_relations_option");
+                if (core_relations_option != null){
+                    filtres["core_relations_option"] = core_relations_option;
+                }
+                var core_version               = getParamGet("core_version");
+                if (core_version != null){
+                    filtres["core_version"] = core_version;
+                }
+                
+                //buildFiltresTickets completer les filtres obligatoires vide
+                var tabInput = buildFiltresTickets(filtres);
+            }else{
+                //Parcour des filtres
+                for(var key in g_filtres_user) {
+                    var value = g_filtres_user[key];
+                    if((value != "")&&(value != ";")){
+                        for(var indice0 in g_filtres){
+                            var param = g_filtres[indice0]["nom_champs_interface"];
+                            if(((g_filtres[indice0]["type"]=="filtre")||(g_filtres[indice0]["type"]=="filtre_list"))&&(g_filtres[indice0]["nom_champs_bd"]==key)){
+                                var array = value.split(';');
+                                var arrayFinal = [];
+                                for(var indice1 in array){
+                                    var valeur = array[indice1].replace(new RegExp('"', "g"),'');
+                                    if(valeur != ""){
+                                        arrayFinal[arrayFinal.length] = valeur;
+                                    }
+                                }
+                                if(arrayFinal.length == 1){
+                                    filtres[param] = arrayFinal[0];
+                                }else{
+                                    filtres[param+"_option"] = "list";
+                                    var strValue = "";
+                                    for(var indice1 in arrayFinal){
+                                        strValue += "'"+arrayFinal[indice1]+"',";
+                                    }
+                                    strValue = strValue.substring(0, strValue.length - 1);
+                                    filtres[param] = strValue; 
+                                }
+                            }else if((g_filtres[indice0]["type"]=="filtre_date")&&(g_filtres[indice0]["nom_champs_bd"]==key)){
+                                filtres[param] = value;
+                                filtres[param+"_option"] = g_filtres_user[key+"_option"];
+                            }
+                        }
+                    }
+                }
+                
+                if(filtres['core_dateTime_modification']=='0000-00-00 00:00:00'){
+                    filtres['core_dateTime_modification'] = '';
+                    g_filtres_user['dateTime_modification'] = '';
+                }
+
+                //Récupération des filtre qui ne sont pas dans le l'obj filtre global
+                if(g_filtres_user["label"] != ""){
+                    filtres["core_label"] = g_filtres_user["label"];
+                }
+
+                if(g_filtres_user["description"] != ""){
+                    filtres["core_description"] = g_filtres_user["description"];
+                }
+                
+                if((g_filtres_user["version"] != "")&&(g_filtres_user["version"] != "0")){
+                    filtres["core_version"] = g_filtres_user["version"];
+                }
+                
+                //buildFiltresTickets completer les filtres obligatoires vide
+                var tabInput = buildFiltresTickets(filtres);
+                
+                if(g_filtres_user["impactNote"] != ""){
+                    tabInput["impactNote"] = g_filtres_user["impactNote"];
+                }
+                
+                if(g_filtres_user["causeNote"] != ""){
+                    tabInput["causeNote"] = g_filtres_user["causeNote"];
+                }
+                
+                if(g_filtres_user["resoNote"] != ""){
+                    tabInput["resoNote"] = g_filtres_user["resoNote"];
+                }
+                
+                if(g_filtres_user["reproNote"] != ""){
+                    tabInput["reproNote"] = g_filtres_user["reproNote"];
+                }
+            }
+            
+            tabInput["vue_respon"] = "true";
+            tabInput["vue_version"] = "true";
+            tabInput["vue_categorie"] = "true";
+            
+            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#inventaire').html(strhtml);
+            
+            var retour = callBD("phpsql/mysql_getTickets.php", "POST", "json", tabInput, "vueTickets");
+            
+            var strParams = buildParams(tabInput);
+            var strhtml = '<a href="#" onclick="window.location = (\'./phpsql/mysql_getTickets.php?ODASortie=csv&ODAFilename=inventaire'+strParams+'\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-action ui-btn-icon-left">CSV Export</a>';
+            $('#inventaire_csv').html(strhtml).trigger('create');
+        } catch (er) {
+            log(0, "ERROR(chargerTickets):" + er.message);
+        }
+    }
+    
+    /**
+     * Mise à jour des filtres
+     */
+    function updateFiltres() {
+        try {
+            //On donne la main au filtre de la page
+            withParamGet = false;
+            
+            var filtres = {};
+            
+            var curFiltre_dateTime_creation = $('#calendar_filtre_dateTime_creation').val();
+            var curFiltre_dateTime_creation_option = $('#input_filtre_dateTime_creation_option').val();
+            var curBdFiltre_dateTime_creation = getDateTfromDateUs(g_filtres_user['dateTime_creation']);
+            var curBdFiltre_dateTime_creation_option = g_filtres_user['dateTime_creation_option'];
+            if((curFiltre_dateTime_creation != curBdFiltre_dateTime_creation)||(curFiltre_dateTime_creation_option != curBdFiltre_dateTime_creation_option)){
+                filtres[g_filtres['filtre_dateTime_creation']['nom_champs_interface']] = curFiltre_dateTime_creation;
+                filtres[g_filtres['filtre_dateTime_creation']['nom_champs_interface']+'_option'] = curFiltre_dateTime_creation_option;
+            }
+            
+            var curFiltre_dateTime_modification = $('#calendar_filtre_dateTime_modification').val();
+            var curFiltre_dateTime_modification_option = $('#input_filtre_dateTime_modification_option').val();
+            var curBdFiltre_dateTime_modification = getDateTfromDateUs(g_filtres_user['dateTime_modification']);
+            var curBdFiltre_dateTime_modification_option = g_filtres_user['dateTime_modification_option'];
+            if((curFiltre_dateTime_modification != curBdFiltre_dateTime_modification)||(curFiltre_dateTime_modification_option != curBdFiltre_dateTime_modification_option)){
+                if(curFiltre_dateTime_modification != ''){
+                    filtres[g_filtres['filtre_dateTime_modification']['nom_champs_interface']] = curFiltre_dateTime_modification;
+                    filtres[g_filtres['filtre_dateTime_modification']['nom_champs_interface']+'_option'] = curFiltre_dateTime_modification_option;
+                }else{
+                    filtres[g_filtres['filtre_dateTime_modification']['nom_champs_interface']] = 'reset';
+                    filtres[g_filtres['filtre_dateTime_modification']['nom_champs_interface']+'_option'] = 'reset';
+                }
+            }
+            
+            var strFiltreLabel = $('#filtre_label').val();
+            if(strFiltreLabel != g_filtres_user['label']){
+                filtres["core_label"] = strFiltreLabel;
+                if(strFiltreLabel == ""){
+                    filtres["core_label"] = '##reset##';
+                }
+            }
+            
+            var strFiltreDescription = $('#filtre_description').val();
+            if(strFiltreDescription != g_filtres_user['description']){
+                filtres["core_description"] = strFiltreDescription;
+                if(strFiltreDescription == ""){
+                    filtres["core_description"] = '##reset##';
+                }
+            }
+            
+            var strFiltreVersion = $('#input_filtre_version').val();
+            if(strFiltreVersion != g_filtres_user['version']){
+                filtres["core_version"] = strFiltreVersion;
+                if(strFiltreVersion == ""){
+                    filtres["core_version"] = '##reset##';
+                }
+            }
+            
+            var tabInput = buildFiltresTickets(filtres);
+            
+            var strFiltreImpactNote = $('#filtre_impactNote').val();
+            if(strFiltreImpactNote != g_filtres_user['impactNote']){
+                if(strFiltreImpactNote == ""){
+                    tabInput["impactNote"] = '##reset##';
+                }else{
+                    tabInput["impactNote"] = strFiltreImpactNote;
+                }
+            }
+            
+            var strFiltreCauseNote = $('#filtre_causeNote').val();
+            if(strFiltreCauseNote != g_filtres_user['causeNote']){
+                if(strFiltreCauseNote == ""){
+                    tabInput["causeNote"] = '##reset##';
+                }else{
+                    tabInput["causeNote"] = strFiltreCauseNote;
+                }
+            }
+            
+            var strFiltreResoNote = $('#filtre_resoNote').val();
+            if(strFiltreResoNote != g_filtres_user['resoNote']){
+                if(strFiltreResoNote == ""){
+                    tabInput["resoNote"] = '##reset##';
+                }else{
+                    tabInput["resoNote"] = strFiltreResoNote;
+                }
+            }
+            
+            var strFiltreReproNote = $('#filtre_reproNote').val();
+            if(strFiltreReproNote != g_filtres_user['reproNote']){
+                if(strFiltreReproNote == ""){
+                    tabInput["reproNote"] =  '##reset##';
+                }else{
+                    tabInput["reproNote"] = strFiltreReproNote;
+                }
+            }
+            
+            if(
+                ($('#calendar_filtre_dateTime_creation').val()=='0000-00-00 00:00:00')
+                ||
+                ($('#calendar_filtre_dateTime_creation').val()=='')
+                ||
+                ($('#input_filtre_dateTime_creation_option').val() == '')
+            ){
+                notification('Date de création et option obligatoire.',_WARNING);
+            }else{
+                //On enregistre en base
+                tabInput['code_user'] = auth;
+                var retour = callBD("phpsql/mysql_updateFiltres.php", "POST", "json", tabInput);
+
+                //On met à jour la mémoire
+                var tabInput = { code_user : auth};
+                var json_filtres = callBD("phpsql/mysql_getFiltresUser.php", "POST", "json", tabInput);
+                g_filtres_user = json_filtres["data"]["resultat"];
+
+                //On recharge
+                chargerTickets();
+            }
+        } catch (er) {
+            log(0, "ERROR(updateFiltres):" + er.message);
+        }
+    }
+
+    /**
+     * @name resetFiltres
+     * @desc Reset les params filtre 
+     */
+    function resetFiltres() {
+        try {
+            var tabInput = { code_user : auth };
+            var retour = callBD("phpsql/mysql_resetFiltres.php", "GET", "json", tabInput);
+            if(retour["strErreur"] == ""){
+                chargerFiltres();
+                chargerTickets();
+            }else{
+                notification("Aie erreur!("+retour["strErreur"]+")", _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(resetFiltres):" + er.message);
+        }
+    }
+    
+    /**
+     * @name switchModeAvance
+     * @desc Afficher/cacher le mode avance   
+     */
+    function switchModeAvance() {
+        try {
+            var statut_mode_avancer = $('#mode_avancer').css('display');
+            
+            if(statut_mode_avancer == 'block'){
+                $("#mode_avancer").css("display", 'none');
+                $("#boutton_mode_avance .ui-btn-text").text("Mode avancé");
+            }else{
+                $("#mode_avancer").css("display", 'block');
+                $("#boutton_mode_avance .ui-btn-text").text("Mode simple");
+            }
+        } catch (er) {
+            log(0, "ERROR(switchModeAvance):" + er.message);
+        }
+    }
+    
+    /**
+     * @name vueTickets
+     * @desc vueTickets
+     * @param {json} p_retour
+     */
+    function vueTickets(p_retour){
+        try {
+            var objDataTable = objDataTableFromJsonArray(p_retour["data"]["resultat"]["data"]);
+            
+            $('#inventaire').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="tab_inventaire"></table>' );
+            var oTable = $('#tab_inventaire').dataTable( {
+                "oLanguage": {"sUrl": "css/datatables/dataTables_I8N/lang_FR.json"},
+                "iDisplayLength": 50,
+                "sPaginationType": "full_numbers",
+                "aaData": objDataTable.data,
+                "aaSorting": [[2,'desc']],
+                "sScrollX": '100%',
+                "sScrollXInner": "2830px",
+                "bScrollCollapse": true,
+                "bAutoWidth": false,
+                "aoColumns": [
+                    { sTitle : "Label", sClass : "left", sWidth : "100px" },
+                    { sTitle : "Nature", sClass : "left", sWidth: "50px" },
+                    { sTitle : "Date de création", sClass : "center", sWidth : "140px" },
+                    { sTitle : "Version", sClass : "center", sWidth: "50px" },
+                    { sTitle : "Statut", sClass : "left", sWidth: "90px" },
+                    { sTitle : "Priorité", sClass : "left", sWidth: "50px" },
+                    { sTitle : "Criticité", sClass : "left", sWidth: "50px" },
+                    { sTitle : "Catégorie", sClass: "left", sWidth: "50px" },
+                    { sTitle : "Affectation", sClass: "left", sWidth: "50px" },
+                    { sTitle : "Description", sClass: "left", sWidth: "2200px"}
+                ],
+                aoColumnDefs: [
+                    {//Label
+                        mRender: function ( data, type, row ) {
+                            return '<a target="_top" href="page_ticket.html?id_page='+id_page+'&id='+row[objDataTable.entete["idElem"]]+'&id_toc='+row[objDataTable.entete["label"]]+'&mili='+getMilise()+'">'+row[objDataTable.entete["label"]]+'</a>';
+                        },
+                        aTargets: [ 0 ]
+                    },
+                    {//Nature
+                        mRender: function ( data, type, row ) {
+                            return tradId(row[objDataTable.entete["nature"]],"tag");
+                        },
+                        aTargets: [ 1 ]
+                    },
+                    {//Date création
+                        mRender: function ( data, type, row ) {
+                            if ( type == 'display' ) {
+                                return getShortStrDateTimeFrFromUs(row[objDataTable.entete["dateTime_creation"]]);
+                            }
+                            return row[objDataTable.entete["dateTime_creation"]];
+                        },
+                        aTargets: [ 2 ]
+                    },
+                    {//Version
+                        mRender: function ( data, type, row ) {
+                            return row[objDataTable.entete["version"]];
+                        },
+                        aTargets: [ 3 ]
+                    },
+                    {//Statut
+                        mRender: function ( data, type, row ) {
+                            return tradId(row[objDataTable.entete["statut"]],"tag");
+                        },
+                        aTargets: [ 4 ]
+                    },
+                    {//Priorité
+                        mRender: function ( data, type, row ) {
+                            if ( type == 'display' ) {
+                                return tradId(row[objDataTable.entete["priorite"]],"tag");
+                            }
+                            return row[objDataTable.entete["priorite"]];
+                        },
+                        aTargets: [ 5 ]
+                    },
+                    {//Criticité
+                        mRender: function ( data, type, row ) {
+                            return tradId(row[objDataTable.entete["criticite"]],"tag");
+                        },
+                        aTargets: [ 6 ]
+                    },
+                    {//Categorie
+                        mRender: function ( data, type, row ) {
+                            return tradId(row[objDataTable.entete["categorie"]],"tag");
+                        },
+                        aTargets: [ 7 ]
+                    },
+                    {//Affectation
+                        mRender: function ( data, type, row ) {
+                            return row[objDataTable.entete["respon"]];
+                        },
+                        aTargets: [ 8 ]
+                    },
+                    {//Description
+                        mRender: function ( data, type, row ) {
+                            return row[objDataTable.entete["description"]];
+                        },
+                        aTargets: [ 9 ]
+                    }
+                ]
+            });
+        }
+        catch (er) {
+            log(0, "ERROR(vueTickets):" + er.message);
+        }
+    }
+    
+    /**
+     * @param {type} p_tab_valeurs
+     * @param {type} p_cle_filtre
+     * @returns {String}     
+     */
+    function transformeFiltre(p_tab_valeurs, p_cle_filtre) {
+        try {
+            var strHtml = "";
+            for(indice in p_tab_valeurs){
+                var valeur = p_tab_valeurs[indice];
+                if(parseInt(valeur) > 0){
+                    for (indice0 in g_tags){
+                        if(g_tags[indice0]["id"] == parseInt(valeur)){
+                            strHtml += "<a href=\"javascript:supprimerFiltre('"+p_cle_filtre+"','"+valeur+"')\" data-role=\"button\" data-icon=\"delete\" data-inline=\"true\" data-mini=\"true\">"+g_tags[indice0]["label"]+"</a>";
+                            break;
+                        }
+                    }
+                }else{
+                    strHtml += "<a href=\"javascript:supprimerFiltre('"+p_cle_filtre+"','"+valeur+"')\" data-role=\"button\" data-icon=\"delete\" data-inline=\"true\" data-mini=\"true\">"+valeur+"</a>";
+                }
+            }
+            
+            return strHtml;
+        } catch (er) {
+            log(0, "ERROR(transformeFiltre):" + er.message);
+        }
+    }
+    
+    /**
+     * @param {type} p_valeur
+     * @returns {array}     
+     */
+    function getArrayFromFiltre(p_valeur) {
+        try {
+            var array_out = new Array();
+            
+            if(typeof p_valeur != 'undefined'){
+                var array = p_valeur.split(';');
+                for(indice in array){
+                    var valeur = array[indice].replace(new RegExp('"', "g"),'');
+                    if(valeur != ""){
+                        array_out[array_out.length] = valeur;
+                    }
+                }
+            }
+            
+            return array_out;
+        } catch (er) {
+            log(0, "ERROR(getArrayFromFiltre):" + er.message);
+        }
+    }
+    
+    </script>
+
+    
+    
+</head>
+<body onload="OnLoad();">
+
+    <!-- page -->
+    <div data-role="page" data-title="Titre">
+
+        <!-- /panel -->
+        <div data-role="panel" id="mypanel" data-display="overlay" data-position="left">
+
+        </div>
+        <!-- /panel -->
+
+        <!-- header -->
+        <div data-role="header" data-position="fixed">
+            <a href="#mypanel" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+            <h1 id="id_titre">titre</h1>
+            <a href="javascript:window.location = ('./page_contact.html?mili='+getMilise());" data-role="button" data-icon="info" data-iconpos="notext">Contact</a>
+        </div>
+        <!-- /header -->
+
+        <!-- content -->
+        <div data-role="content" id="main_content">
+            <div id="content_filtre" data-role="collapsible" data-collapsed="false" data-mini="true">
+                <h4>Les filtres</h4>
+                <div class="ui-grid-d ui-responsive">
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-d"><b>Auteur(s)</b></div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-d"><b>Nature</b></div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-d"><b>Cat&eacute;gorie</b></div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-d"><b>Sous-Cat&eacute;gorie</b></div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-d"><b>Priorit&eacute;</b></div>
+                    </div>
+
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_auteurs"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_nature"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_categorie"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_sous_categorie"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_priorite"></div>
+                        </div>
+                    </div>
+
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-d"><b>Criticit&eacute;</b></div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-d"><b>Statut</b></div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-d"><b>Affectation</b></div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-d"><b>Label</b></div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-d"><b>Description</b></div>
+                    </div>
+
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_criticite"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_statut"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_respon"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_label">
+                                <input type="text" name="filtre_label" id="filtre_label" value="" data-filter-placeholder="Votre recherche..."  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_filtre_description">
+                                <input type="text" name="filtre_description" id="filtre_description" value="" data-filter-placeholder="Votre recherche..."  />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="msgRetour"></div>
+                <!-- Menu -->
+                <div class="ui-grid-b ui-responsive">
+                    <div class="ui-block-a" style="text-align:left;"><a href="javascript:updateFiltres();" data-role="button" data-inline="true" data-icon="arrow-u" data-mini="true" title="Mettre &agrave; jour">Mettre &agrave; jour</a></div>
+		    <div class="ui-block-a" style="text-align:left;"><a href="" data-role="button" data-inline="true" data-icon="arrow-u" data-mini="true" title="Tickets Pilo (Non-Affectés)">Tickets Pilo (Non-Affectés)</a></div>
+                    <div class="ui-block-b" style="text-align:center;"><a href="javascript:switchModeAvance();" data-role="button" data-inline="true" data-icon="eye" data-mini="true" title="Basculer en mode avanc&eacute;" id="boutton_mode_avance">Mode avancé</a></div>
+                    <div class="ui-block-b" style="text-align:right"><a href="javascript:resetFiltres();" data-role="button" data-inline="true" data-mini="true" data-icon="recycle" title="Remise &agrave; zero">Remise &agrave; zero</a></div>
+                </div>
+                <!-- /Menu -->
+                <br>
+                
+                <div class="ui-grid-d ui-responsive" id="mode_avancer" style="display:none;">
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-d"><b>Causes</b></div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-d"><b>Impacts</b></div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-d"><b>Reproduction</b></div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-d"><b>Résolution</b></div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-d"><b>Relation</b></div>
+                    </div>
+
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_causes_tags"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_impacts_tags"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_repro_tags"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_reso_tags"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_relations"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-d"><b>Date de cr&eacute;ation</b></div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-d"><b>Date de modification</b></div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-d"><b>Complexit&eacute;</b></div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-d"><b>Environnement d'origine</b></div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-d"><b>Environnement de destination</b></div>
+                    </div>
+
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_dateTime_creation">N.A.
+                            </div>
+                            <input type="datetime-local" name="calendar_filtre_dateTime_creation" id="calendar_filtre_dateTime_creation" />
+                            <label id="tips_calendar_filtre_dateTime_creation"></label>
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_dateTime_modification">N.A.
+                            </div>
+                            <input type="datetime-local" name="calendar_filtre_dateTime_modification" id="calendar_filtre_dateTime_modification"  />
+                            <label id="tips_calendar_filtre_dateTime_modification"></label>
+                        </div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_complexite"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_env_ori"></div>
+                        </div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_env_dest"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-d">
+                            <label for="input_filtre_version" id="label_input_filtre_version"><b>Version :</b></label>    
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-d">
+                            <label for="filtre_impactNote" id="label_filtre_impactNote"><b>Note impact :</b></label>    
+                        </div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-d">
+                            <label for="filtre_causeNote" id="label_filtre_causeNote"><b>Note cause :</b></label>    
+                        </div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-d">
+                            <label for="filtre_resoNote" id="label_filtre_resoNote"><b>Note résolution :</b></label>    
+                        </div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-d">
+                            <label for="filtre_reproNote" id="label_filtre_reproNote"><b>Note reproduction :</b></label>    
+                        </div>
+                    </div>
+                    <div class="ui-block-a">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_input_filtre_version">
+                                <input type="number" name="input_filtre_version" id="input_filtre_version" onkeyup="ecoute(this, event.keyCode);" onblur="onblurInput(this);" onfocus="onfocusInput(this);">
+                                <label id="tips_input_filtre_version"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_impactNote">
+                                <input type="text" name="filtre_impactNote" id="filtre_impactNote" value="" data-filter-placeholder="Votre recherche..."  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-block-c">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_causeNote">
+                                <input type="text" name="filtre_causeNote" id="filtre_causeNote" value="" data-filter-placeholder="Votre recherche..."  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-block-d">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_resoNote">
+                                <input type="text" name="filtre_resoNote" id="filtre_resoNote" value="" data-filter-placeholder="Votre recherche..."  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui-block-e">
+                        <div class="ui-bar ui-bar-e" style="min-height:50px;">
+                            <div id="div_filtre_filtre_reproNote">
+                                <input type="text" name="filtre_reproNote" id="filtre_reproNote" value="" data-filter-placeholder="Votre recherche..."  />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+            <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                <h4>L'inventaire</h4>
+                <div id="inventaire"></div>
+                <br>
+                <div id="inventaire_csv"></div>
+            </div>
+        </div>
+        <!-- /content -->
+
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed">
+            <a data-role="button" data-icon="search" data-iconpos="notext" class="ui-btn-left" href="javascript:window.location = ('./page_faq.html?mili='+getMilise());">FAQ</a>
+            <h1 id="id_affichageUser">User</h1>
+            <a data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right" href="javascript:window.location = ('./page_sortie.html?mili='+getMilise());">Logout</a>
+        </div>
+        <!-- /footer -->
+
+    </div>
+    <!-- /page -->
+</body>
+</html>

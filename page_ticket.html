@@ -1,0 +1,2716 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <!--META-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="API/css/themes/default/jquery.mobile.min.css" />
+    <!--<link rel="stylesheet" href="API/css/datatables/css/jquery.dataTables.css"/>--> 
+    <link rel="stylesheet" href="API/css/mycss.css" />
+    <link rel="stylesheet" href="css/mycss.css" />
+
+    <!--JS-->
+    <script type="text/javascript" src="API/js/jquery.min.js"></script>
+    <script type="text/javascript" src="API/js/jquery.mobile.min.js"></script>
+    <!--<script type="text/javascript" src="API/js/highcharts.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/modules/exporting.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/jquery.dataTables.min.js"></script>-->
+    <script type="text/javascript" src="include/config.js"></script>
+    <script type="text/javascript" src="API/js/fonctions.js"></script>
+    <script type="text/javascript" src="js/fonctions.js"></script>
+
+    <script type="text/javascript">
+    checkMaintenance();
+    checkAuthentification();
+    
+    ///////////////////
+    //BLOCK VARIABLE GLOBAL
+    ///////////////////
+    var id_page = 21;
+    
+    var g_couleurFontBon = "#04B404";
+    var g_couleurFontMauvais = "#FF0000";
+    var g_couleurFontDefaut = "#333333";
+    var g_couleurFontTips = "#a1a1a1";
+    
+    var curUserRangIndice = "";
+    var curUserRangId = "";
+    var g_id = null;
+    var g_id_toc = null;
+    var g_id_page_ori = null;
+    var g_mode = "consultation";
+    
+    var g_tab_testInput = new Array();
+    g_tab_testInput["input_label"]=false; 
+    g_tab_testInput["input_new_label"]=false; 
+    g_tab_testInput["input_new_descri"]=false; 
+    g_tab_testInput["input_description"]=false; 
+    g_tab_testInput["input_tp"]=false;
+    
+    var g_tab_changeInput = new Array();
+    g_tab_changeInput["input_label"]=false;
+    g_tab_changeInput["input_visible"]=false; 
+    g_tab_changeInput["input_editable"]=false; 
+    g_tab_changeInput["input_nature"]=false; 
+    g_tab_changeInput["input_priorite"]=false; 
+    g_tab_changeInput["input_criticite"]=false; 
+    g_tab_changeInput["input_complexite"]=false; 
+    g_tab_changeInput["input_repro"]=false; 
+    g_tab_changeInput["input_statut"]=false; 
+    g_tab_changeInput["input_env_ori"]=false; 
+    g_tab_changeInput["input_env_dest"]=false; 
+    g_tab_changeInput["input_description"]=false; 
+    g_tab_changeInput["input_causes_note"]=false; 
+    g_tab_changeInput["input_impacts_note"]=false; 
+    g_tab_changeInput["input_repro_note"]=false; 
+    g_tab_changeInput["input_reso_note"]=false;
+    g_tab_changeInput["input_categorie"]=false; 
+    g_tab_changeInput["input_sous_categorie"]=false;
+    g_tab_changeInput["input_respon"]=false;
+    g_tab_changeInput["input_tp"]=false;
+    
+    var g_tab_champs_context = new Array();
+    g_tab_champs_context = ["input_nature","input_categorie","input_sous_categorie","input_priorite","input_criticite"
+        ,"input_complexite","input_repro","input_statut","input_env_ori","input_env_dest","input_respon","input_tp"];
+  
+    var g_tab_code = new Array();
+    g_tab_code["nature"] = 28;
+    g_tab_code["priorite"] = 15;
+    g_tab_code["criticite"] = 16;
+    g_tab_code["complexite"] = 17;
+    g_tab_code["repro"] = 18;
+    g_tab_code["statut"] = 9;
+    g_tab_code["env_ori"] = 19;
+    g_tab_code["env_dest"] = 50;
+    g_tab_code["categorie"] = 12;
+    g_tab_code["sous_categorie"] = 13;
+    g_tab_code["description"] = 70;
+    g_tab_code["causes_tags"] = 20;
+    g_tab_code["causes_note"] = 78;
+    g_tab_code["causes_pjs"] = 85;
+    g_tab_code["impacts_tags"] = 21;
+    g_tab_code["impacts_note"] = 79;
+    g_tab_code["impacts_pjs"] = 086;
+    g_tab_code["repro_tags"] = 22;
+    g_tab_code["repro_note"] = 80;
+    g_tab_code["repro_pjs"] = 87;
+    g_tab_code["reso_tags"] = 23;
+    g_tab_code["reso_note"] = 81;
+    g_tab_code["reso_pjs"] = 88;
+    g_tab_code["tp"] = 34;
+    g_tab_code["respon"] = 14;
+      
+    var g_ajout_tag = new Array();
+    g_ajout_tag["type_tag_id"] = 0;
+    g_ajout_tag["type_tag_name"] = "";
+    g_ajout_tag["unique"] = "true";
+    
+    var g_size_list_tag = new Array();
+    g_size_list_tag["categorie"] = 1;
+    g_size_list_tag["sous_categorie"] = 3;
+    g_size_list_tag["causes_tags"] = 3;
+    g_size_list_tag["impacts_tags"] = 3;
+    g_size_list_tag["repro_tags"] = 3;
+    g_size_list_tag["reso_tags"] = 3;
+    
+    var g_rangs;
+    var g_tags;
+    var g_tag_statut;
+
+    ///////////////////
+    //BLOCK FONCTIONS EVENEMENTS
+    ///////////////////
+    //A la construction de la page
+    $(document).on('pageinit',function() {
+        try {
+            // Init commmun
+            init_commun();
+
+            // Init page
+        } catch (er) {
+            log(0, "ERROR(init_home):" + er.message);
+        }
+    });
+
+    //Affichage de la page avant onload
+    $(document).on('pageshow',function() {
+        try {
+            show_commun();
+        } catch (er) {
+            log(0, "ERROR(show):" + er.message);
+        }
+    });
+
+    //Fin chargement page
+    function OnLoad() {
+        try {
+            chargerTags();
+            
+            g_id = getParamGet("id");
+            g_label = getParamGet("id_toc");
+            g_edit = getParamGet("edit");
+            g_id_page_ori = getParamGet("id_page");
+            
+            chargerBoutonRetour(g_id_page_ori);
+            
+            curUserRangIndice = tabInfoLogin[0][3];
+            curUserRangId = tabInfoLogin[0][5];
+            
+            var tabInput = { id : '' };
+            var retour_json = callBD("phpsql/mysql_getRangs.php", "POST", "json", tabInput);
+            g_rangs = retour_json["data"]["resultat"]["data"];
+            
+            if((g_label != null)&&(g_label != "")){
+                //Mise à jour du titre page avec le label
+                document.title = getParameter("nom_site") + " - " + g_label;
+                $('#id_titre').html(g_label);
+                chargerDetailsOceane(g_label);
+                chargerDetailsAutomate(g_label);
+            }
+            
+            if(g_id == null){
+                g_mode = "creation";
+                document.title = getParameter("nom_site") + " - Création d'un ticket";
+                $('#id_titre').html("Cr&eacute;ation d'un ticket");
+
+                $( "#content_context" ).hide();
+                $( "#content_causes" ).hide();
+                $( "#content_impacts" ).hide();
+                $( "#content_reso" ).hide();
+                $( "#content_repro" ).hide();
+                $( "#content_notes" ).hide();
+                
+                var strhtml = "<a href=\"javascript:createSysTicket();\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Cr&eacute;er\">Cr&eacute;er</a>";
+                $('#div_button_saveUpdate').html(strhtml).trigger('create');
+
+                initialiser_champs_creation();
+            }else if((g_id!=null)&&(g_edit==null)){
+                g_mode = "consultation";
+                
+                initialiser_champs_consult(g_id);
+                
+                chargerNotes();
+                chargerHistoChange(g_id);
+            }else if((g_id!=null)&&(g_edit=="oui")){
+                g_mode = "edition";
+                
+                //Bouton 
+                var strhtml = "<a href=\"javascript:window.location = ('./page_ticket.html?mili="+getMilise()+"&id_page="+g_id_page_ori+"&id="+g_id+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Visualisation\" data-icon=\"info\">Visualisation</a>";
+                $('#action_button').html(strhtml).trigger('create');
+                
+                var strhtml = "<a href=\"javascript:updateSysTicket();\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\" class=\"ui-disabled\" id=\"btUpdateSysTicket\">Mettre &agrave; jour</a>";
+                $('#div_button_saveUpdate').html(strhtml).trigger('create');
+                var strhtml = "<a href=\"javascript:updateContextTicket();\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\" class=\"ui-disabled\" id=\"btUpdateContextTicket\">Mettre &agrave; jour</a>";
+                $('#div_btUpdateContextTicket').html(strhtml).trigger('create');
+                
+                initialiser_champs_edition(g_id);
+                
+                chargerNewNote();
+                chargerNotes();
+                chargerHistoChange(g_id);
+            }
+        } catch (er) {
+            log(0, "ERROR(OnLoad):" + er.message);
+        }
+    }
+    
+    /**
+     * ecoute
+     */
+    function ecoute(p_obj, p_eventCode) {
+        try {
+
+            switch (p_eventCode) { 
+                case 13: 
+                    onblurInput(p_obj);
+                    break; 
+                default: 
+                    break; 
+            }
+        } catch (er) {
+            log(0, "ERROR(ecoute):" + er.message);
+        }
+    }
+    
+    /**
+     * refreshUsed
+     */
+    function refreshUsed(p_obj, p_eventCode) {
+        try {
+            $("#tips_"+p_obj.name).text("");
+            $("#tips_"+p_obj.name).css("color", g_couleurFontTips);
+            
+            if(p_obj.value.length > 0){
+                var left = 5000 - p_obj.value.length;
+                $("#tips_"+p_obj.name).html(left);
+                $("#bouton_"+p_obj.name).removeClass('ui-disabled');
+            }else{
+                $("#tips_"+p_obj.name).text("");
+                $("#bouton_"+p_obj.name).addClass('ui-disabled');
+            }
+            
+            switch (p_eventCode) { 
+                case 13: 
+                    break; 
+                default: 
+                    break; 
+            }
+        } catch (er) {
+            log(0, "ERROR(ecoute):" + er.message);
+        }
+    }
+
+    /**
+     * onblurInput
+     */
+    function onblurInput(p_obj) {
+        try {
+            $("#tips_"+p_obj.name).text("");
+            
+            switch (p_obj.name) {
+                case "input_label" : 
+                    var Model=/^[a-zA-Z0-9._-]{2,}$/g;
+                    var test = p_obj.value.match(Model);
+                    if(test != null){
+                        $("#label_"+p_obj.name).css("color", g_couleurFontBon);
+                        g_tab_testInput[p_obj.name]=true;
+                    }else{
+                        $("#label_"+p_obj.name).css("color", g_couleurFontMauvais);
+                        g_tab_testInput[p_obj.name]=false;
+                    }
+                    g_tab_changeInput[p_obj.name]=true;
+                    break;
+                    
+                case "input_tp" : 
+                    var Model=/^[0-9.]{1,}$/g;
+                    var test = p_obj.value.match(Model);
+                    if(test != null){
+                        $("#label_"+p_obj.name).css("color", g_couleurFontBon);
+                        g_tab_testInput[p_obj.name]=true;
+                    }else{
+                        $("#label_"+p_obj.name).css("color", g_couleurFontMauvais);
+                        g_tab_testInput[p_obj.name]=false;
+                    }
+                    g_tab_changeInput[p_obj.name]=true;
+                    break;
+                
+                case "input_new_label" : 
+                    var Model=/^[a-zA-ZÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜáàâäéèêëíìîïóòôöúùûüÇç0-9._-]{2,15}$/g;
+                    var test = p_obj.value.match(Model);
+                    if(test != null){
+                        $("#label_"+p_obj.name).css("color", g_couleurFontBon);
+                        g_tab_testInput[p_obj.name]=true;
+                    }else{
+                        $("#label_"+p_obj.name).css("color", g_couleurFontMauvais);
+                        g_tab_testInput[p_obj.name]=false;
+                    }
+                    g_tab_changeInput[p_obj.name]=true;
+                    break;
+                    
+                case "input_new_descri" : 
+                    var Model=/^[a-zA-ZÁÀÂÄÉÈÊËÍÌÎÏÓÒÔÖÚÙÛÜáàâäéèêëíìîïóòôöúùûüÇç0-9._-]{2,255}$/g;
+                    var test = p_obj.value.match(Model);
+                    if(test != null){
+                        $("#label_"+p_obj.name).css("color", g_couleurFontBon);
+                        g_tab_testInput[p_obj.name]=true;
+                    }else{
+                        $("#label_"+p_obj.name).css("color", g_couleurFontMauvais);
+                        g_tab_testInput[p_obj.name]=false;
+                    }
+                    g_tab_changeInput[p_obj.name]=true;
+                    break;  
+                    
+                default: 
+                    break; 
+            }
+        } catch (er) {
+            log(0, "ERROR(checkIntput):" + er.message);
+        }
+    }
+
+    /**
+     * onfocusInput
+     */
+    function onfocusInput(p_obj) {
+        try {
+            $("#label_"+p_obj.name).css("color", g_couleurFontDefaut);
+            $("#tips_"+p_obj.name).css("color", g_couleurFontTips);
+
+            switch (p_obj.name) {
+                case "input_label" :
+                    $("#tips_"+p_obj.name).html("Attention lien Oceane/Automate!");
+                    break;
+                    
+                case "input_new_label" :
+                    $("#tips_"+p_obj.name).html("15 carract&egrave;re maximum.");
+                    break;
+                    
+                case "input_new_descri" :
+                    $("#tips_"+p_obj.name).html("250 carract&egrave;re maximum.");
+                    break;
+                    
+                case "input_tp" :
+                    $("#tips_"+p_obj.name).html("ex : 00.00 (en JH)");
+                    break;    
+                    
+                default: 
+                    break; 
+            }
+        } catch (er) {
+            log(0, "ERROR(onfocusInput):" + er.message);
+        }
+    }
+    
+    /**
+     * onChangeInput
+     */
+    function onChangeInput(p_obj) {
+        try {
+            if((p_obj.value != "")&&(p_obj.value != "#")){
+                g_tab_changeInput[p_obj.name]=true;
+                
+                if (isInArray(p_obj.name,g_tab_champs_context)){
+                    $("#btUpdateContextTicket").removeClass('ui-disabled');
+                }
+            }else{
+                if(p_obj.value == "#"){
+                    g_ajout_tag["type_tag_name"] = p_obj.name.replace("input_","");
+                    g_ajout_tag["type_tag_id"] = g_tab_code[g_ajout_tag["type_tag_name"]];
+                    g_ajout_tag["unique"] = true;
+                    
+                    $("#input_new_label").val("");
+                    $("#input_new_descri").val("");
+                    g_tab_testInput["input_new_label"]=false; 
+                    g_tab_testInput["input_new_descri"]=false;
+                    $("#label_input_new_label").css("color", "#FFFFFF");
+                    $("#tips_input_new_label").text("");
+                    $("#label_input_new_descri").css("color", "#FFFFFF");
+                    $("#tips_input_new_descri").text("");
+                    $( "#popupNewTag" ).popup( "open", { transition : "flip" } );
+                }
+            }
+        } catch (er) {
+            log(0, "ERROR(onChangeInput):" + er.message);
+        }
+    }
+    
+    /**
+     * @name onChangeInputG
+     * @desc Si il y a un changement on libère le bouton d'action
+     * @param {obj} p_obj
+     * @param {string} p_idBt
+     */
+    function onChangeInputG(p_obj,p_idBt) {
+        try {
+            if((p_obj.value != "")&&(p_obj.value != "#")){
+                $(p_idBt).removeClass('ui-disabled');
+            }
+        } catch (er) {
+            log(0, "ERROR(onChangeInputG):" + er.message);
+        }
+    }
+    
+    /**
+     * onChangeInputMultiTag
+     */
+    function onChangeInputMultiTag(p_obj, p_str_section, p_id_type_tag) {
+        try {
+            if((p_obj.value != "")&&(p_obj.value != "#")){
+                //Ajouter tag
+                var tabInput = { id_tag : p_obj.value, str_section : p_str_section, id_type_tag : p_id_type_tag, id_toc : g_id, code_user : auth};
+                callBD("phpsql/mysql_ajouterLienTag.php", "POST", "JSON", tabInput, "retour_ajouterLienTag");
+            }else{
+                if(p_obj.value == "#"){
+                    g_ajout_tag["type_tag_name"] = p_obj.name.replace("input_","");
+                    g_ajout_tag["type_tag_id"] = g_tab_code[g_ajout_tag["type_tag_name"]];
+                    g_ajout_tag["unique"] = false;
+                    
+                    $("#input_new_label").val("");
+                    $("#input_new_descri").val("");
+                    g_tab_testInput["input_new_label"]=false; 
+                    g_tab_testInput["input_new_descri"]=false;
+                    $("#label_input_new_label").css("color", "#FFFFFF");
+                    $("#tips_input_new_label").text("");
+                    $("#label_input_new_descri").css("color", "#FFFFFF");
+                    $("#tips_input_new_descri").text("");
+                    $( "#popupNewTag" ).popup( "open", { transition : "flip" } );
+                }
+            }
+        } catch (er) {
+            log(0, "ERROR(onChangeInputMultiTag):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS METIER
+    ///////////////////
+    /**
+     * Upload un fichier
+     * 
+     * @param {type} p_obj
+     */
+    function upload(p_obj, p_type_id) {
+        try {
+            $('#retour_upload_'+p_obj.name).html("").trigger("create");
+            
+            var retour = {};
+            var inputElement = $('#'+p_obj.name);
+            
+            if(inputElement[0].files.length > 0){
+                var data = new FormData();
+                jQuery.each(inputElement[0].files, function(i, file) {
+                    data.append('file-'+i, file);
+                });
+
+                retour = send(data, p_type_id);
+                
+                if(retour["code"] == "ko"){
+                    notification( retour["message"], _ALERT);
+                }else{
+                    $('#'+p_obj.name).val("");
+                    chargerPjs(p_type_id);
+                }
+            }
+        } catch (er) {
+            log(0, "ERROR(upload):" + er.message);
+        }
+    }
+    
+    /**
+     * Supprimer une pj
+     * 
+     * @param {string} p_id_pj
+     * @param {string} p_type_id
+     * @param {string} p_label
+     */
+    function supprimerPj(p_id_pj, p_type_id, p_label) {
+        try {
+            var tabInput = { id_toc : g_id, code_user : auth, id_type : p_type_id, id_pj : p_id_pj, label_fich : p_label };
+            var json_retour = callBD("php/delete.php", "POST", "json", tabInput);
+            if(json_retour["data"]["code"] == "ok"){
+                chargerPjs(p_type_id);
+            }else{
+                notification( "Echec de la suppression.", _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(supprimerPj):" + er.message);
+        }
+    }
+    
+    /**
+     * Retirer une note
+     * 
+     * @param {string} p_id_note
+     */
+    function deleteNote(p_id_note) {
+        try {
+            var tabInput = { id_toc : g_id, code_user : auth, id_type : 84, id_note : p_id_note };
+            var json_retour = callBD("phpsql/mysql_supprimerNote.php", "POST", "json", tabInput);
+            if(json_retour["strErreur"] == ""){
+                chargerNotes();
+            }else{
+                notification( "Erreur pendant la suppression de la note ("+json_retour["strErreur"]+")", _ALERT);
+            } 
+        } catch (er) {
+            log(0, "ERROR(deleteNote):" + er.message);
+        }
+    }
+    
+    /**
+     * Met à jour une note
+     * 
+     * @param {string} p_id_note
+     * @param {string} p_id_note
+     * @param {string} p_type_note
+     */
+    function updateNote(p_champs, p_id_note, p_type_note) {
+        try {
+            var p_note = $("#"+p_champs).val();
+            
+            if(p_note.length > 0){
+                var tabInput = { id_toc : g_id, code_user : auth, id_note : p_id_note, id_type : p_type_note, note : p_note };
+                var retour = callBD("phpsql/mysql_updateNote.php", "POST", "json", tabInput);
+                if((retour["strRetour"] == "")&&(retour["bolUpdate"])){
+                    notification( "Modification r&eacute;usssie", _SUCCES);
+                    $("#bouton_"+p_champs).addClass('ui-disabled');
+                }else{
+                    if((retour["strRetour"] == "")&&(retour["bolCreate"])){
+
+                        var strHref = "javascript:updateNote('"+p_champs+"', "+retour["idNewNote"]+", "+p_type_note+");";
+                        $("#bouton_"+p_champs).attr("href", strHref);
+                        $("#bouton_"+p_champs).addClass('ui-disabled');
+
+                        notification( "Modification r&eacute;usssie", _SUCCES);
+                    }else{
+                        notification( "Erreur pendant l'ajout de la note", _WARNING);
+                    }
+                }
+            }else{
+                notification( "Champ note vide.", _WARNING);
+            }
+        } catch (er) {
+            log(0, "ERROR(updateNote):" + er.message);
+        }
+    }
+    
+    /**
+     * Ajout une note
+     */
+    function ajouterNote() {
+        try {
+            var p_note = $("#input_new_note_0").val();
+            
+            if(p_note.length > 0){
+
+                var tabInput = { id_toc : g_id, code_user : auth, id_type : 84, note : p_note };
+                var retour = callBD("phpsql/mysql_ajouterNote.php", "POST", "json", tabInput);
+                if(retour["strErreur"] == ""){
+                    $("#input_new_note_0").val("");
+                    $("#content_new_note").collapsible( "collapse" );
+                    chargerNotes();
+                }else{
+                    notification("Erreur pendant l'ajout de la note.("+retour["strErreur"]+")",_ALERT);
+                }
+            }else{
+                notification("La note est vide.",_WARNING);
+            }
+        } catch (er) {
+            log(0, "ERROR(ajouterNote):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerBoutonRetour
+     * @param {string} p_id_page
+     */
+    function chargerBoutonRetour(p_id_page) {
+        try {
+            if(p_id_page != null){
+                var strPage = getter(prefixTable+"tab_menu",'{"champ":"Lien","type":"PARAM_STR"}','{"champ":"id","valeur":"'+p_id_page+'","type":"PARAM_INT"}');
+
+                var strhtml = "";
+                if(strPage != ""){
+                    strhtml += "<a href=\"javascript:window.location = ('./"+strPage+"?mili='+getMilise());\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" data-icon=\"arrow-l\" title=\"Retour\">Retour</a>";
+                    $('#button_back').html(strhtml).trigger("create");
+                }
+            }
+        } catch (er) {
+            log(0, "ERROR(chargerBoutonRetour):" + er.message);
+        }
+    }
+    
+    /**
+     * initialiser_champs_creation
+     * Créer l'affichage du ticket NOA en mode creation
+     */
+    function initialiser_champs_creation() {
+        try {
+            var strhtml = "<input type=\"text\" name=\"input_label\" id=\"input_label\" value=\"\" data-mini=\"true\" placeholder=\"votre label ici\" onkeyup=\"ecoute(this, event.keyCode);\" onblur=\"onblurInput(this);\" onfocus=\"onfocusInput(this);\" />";
+            $('#div_input_label').html(strhtml).trigger("create");
+            
+            var json_rangs = g_rangs;
+            
+            //Visible
+            var visibleIndice = 30;
+            
+            var strhtml = "";
+            
+            if(curUserRangIndice > visibleIndice){
+                strhtml = "Tous"
+                for(var indice in json_rangs){
+                    if(visibleIndice ==  parseInt(json_rangs[indice]["indice"])){
+                        strhtml = json_rangs[indice]["labelle"];
+                    }
+                }
+            }else{
+                strhtml += "<select name=\"input_visible\" id=\"input_visible\" onchange=\"onChangeInput(this);\" data-mini=\"true\">";
+                strhtml += "<option value=\"1\">Tous</option>";
+                var strSelected = "";
+                for(var indice in json_rangs){
+                    if(curUserRangIndice <=  parseInt(json_rangs[indice]["indice"])){
+                        if(visibleIndice ==  parseInt(json_rangs[indice]["indice"])){
+                            strSelected = " Selected";
+                        }else{
+                            strSelected = "";
+                        }
+                        strhtml += "<option value=\""+json_rangs[indice]["id"]+"\" "+strSelected+">"+json_rangs[indice]["labelle"]+"</option>";
+                    }
+                }
+                strhtml += "</select>";
+            }
+            
+            $('#div_input_visible').html(strhtml).trigger("create");
+            
+            //editable
+            var editableIndice = 30;
+            
+            var strhtml = "";
+            
+            if(curUserRangIndice > editableIndice){
+                strhtml = "Tous"
+                for(var indice in json_rangs){
+                    if(editableIndice ==  parseInt(json_rangs[indice]["indice"])){
+                        strhtml = json_rangs[indice]["labelle"];
+                    }
+                }
+            }else{
+                strhtml += "<select name=\"input_visible\" id=\"input_editable\" onchange=\"onChangeInput(this);\" data-mini=\"true\">";
+                strhtml += "<option value=\"1\">Tous</option>";
+                for(var indice in json_rangs){
+                    if(editableIndice ==  parseInt(json_rangs[indice]["indice"])){
+                        strSelected = " Selected";
+                    }else{
+                        strSelected = "";
+                    }
+                    if(curUserRangIndice <=  parseInt(json_rangs[indice]["indice"])){
+                        strhtml += "<option value=\""+json_rangs[indice]["id"]+"\" "+strSelected+">"+json_rangs[indice]["labelle"]+"</option>";
+                    }
+                }
+                strhtml += "</select>";
+            }
+            
+            $('#div_input_editable').html(strhtml).trigger("create");
+            
+            $( "#content_systeme" ).collapsible( "expand" );
+            $( "#content_noa" ).collapsible( "expand" );
+        } catch (er) {
+            log(0, "ERROR(initialiser_champs_creation):" + er.message);
+        }
+    }
+    
+    /**
+     * initialiser_champs_consult
+     * Créer l'affichage du ticket NOA en mode consultation
+     */
+    function initialiser_champs_consult(p_id) {
+        try {
+            notification("Chargement en cours ... merci de votre patience.",_INFO);
+            var tabInput = { id : p_id };
+            callBD("phpsql/mysql_getTicketsDetails.php", "POST", "json", tabInput, "vueModeConsultation");
+        } catch (er) {
+            log(0, "ERROR(initialiser_champs_consult):" + er.message);
+        }
+    }
+    
+    /**
+     * initialiser_champs_edition
+     * Créer l'affichage du ticket NOA en mode edition
+     */
+    function initialiser_champs_edition(p_id) {
+        try {
+            notification("Chargement en cours ... merci de votre patience.",_INFO);
+            var tabInput = { id : p_id };
+            callBD("phpsql/mysql_getTicketsDetails.php", "POST", "json", tabInput, "vueModeEdtion");
+        } catch (er) {
+            log(0, "ERROR(initialiser_champs_edition):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerDetailsOceane
+     * Charge le détails depuis Océane
+     * @param {string} p_id_toc
+     */
+    function chargerDetailsOceane(p_id_toc) {
+        try {
+            $( "#content_oceane" ).collapsible( "expand" );
+            strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#detailsOceane').html(strhtml);
+            var tabInput = { id_toc : p_id_toc };
+            callBD("phpsql/mysql_getDetailsOceane.php", "POST", "json", tabInput, "vueDetailsOceane");
+        } catch (er) {
+            log(0, "ERROR(chargerDetailsOceane):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerDetailsAutomate
+     * Charge le détails depuis Automate
+     * @param {string} p_id_toc
+     */
+    function chargerDetailsAutomate(p_id_toc) {
+        try {
+            $( "#content_automate" ).collapsible( "expand" );
+            strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#detailsAutomate').html(strhtml);
+            var tabInput = { id_toc : p_id_toc };
+            callBD("phpsql/mysql_getDetailsAutomate.php", "POST", "json", tabInput, "vueDetailsAutomate");
+        } catch (er) {
+            log(0, "ERROR(chargerDetailsAutomate):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerHistoChange
+     * Charge le détails hitoriques
+     * @param {string} p_id_toc
+     */
+    function chargerHistoChange(p_id_toc) {
+        try {
+            strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#div_histoChange').html(strhtml);
+            var tabInput = { id:p_id_toc };
+            callBD("phpsql/mysql_getTicketsHistoChange.php", "GET", "json", tabInput, "retour_chargerHistoChange");
+        } catch (er) {
+            log(0, "ERROR(chargerHistoChange):" + er.message);
+        }
+    }
+    
+    /**
+     * updateSysTicket
+     * Mise à jour du détails système du ticket
+     */
+    function updateSysTicket() {
+        try {
+            var controle = true;
+            
+            var list_champs = new Array("input_label","input_visible","input_editable");
+            
+            var strMsgChamps = "Il faut revoir ce(s) champ(s) : ";
+
+            for(var indice in list_champs){
+                if(g_tab_testInput[list_champs[indice]] == false){
+                    strMsgChamps += $("#label_"+unInput).text()+", ";
+                    controle = false;
+                }
+            }
+            strMsgChamps += "Merci.";
+
+            if(controle){
+                var p_input_label = $("#input_label").val();
+                var p_input_visible = $("#input_visible").val();
+                var p_input_editable = $("#input_editable").val();
+
+                var tabInput = { id : g_id, label : p_input_label, visible : p_input_visible, editable : p_input_editable, code_user : auth };
+                callBD("phpsql/mysql_upDateTicketSysDetails.php", "POST", "json", tabInput, "retour_updateSysTicket");
+            }else{
+                notification( strMsgChamps, _WARNING);
+            }
+        } catch (er) {
+            log(0, "ERROR(updateSysTicket):" + er.message);
+        }
+    }
+    
+    /**
+     * updateContextTicket
+     * Mise à jour du détails context du ticket
+     */
+    function updateContextTicket() {
+        try {
+            var controle = false;
+            
+            var list_champs = new Array("input_nature","input_priorite","input_criticite"
+                ,"input_complexite","input_repro","input_statut","input_env_ori","input_env_dest","input_tp"
+            );
+            
+            for(var indice in list_champs){
+                if(g_tab_changeInput[list_champs[indice]]){
+                    controle = true;
+                    break;
+                }
+            }
+            
+            if(controle){
+                var p_input_nature = $("#input_nature").val();
+                var p_input_priorite = $("#input_priorite").val();
+                var p_input_criticite = $("#input_criticite").val();
+                var p_input_complexite = $("#input_complexite").val();
+                var p_input_repro = $("#input_repro").val();
+                var p_input_statut = $("#input_statut").val();
+                g_tag_statut = p_input_statut;
+                var p_input_env_ori = $("#input_env_ori").val();
+                var p_input_env_dest = $("#input_env_dest").val();
+                var p_input_tp = $("#input_tp").val();
+
+                var tabInput = { id_toc : g_id, code_user : auth 
+                    ,nature_type : g_tab_code["nature"], nature_tag : p_input_nature
+                    ,priorite_type : g_tab_code["priorite"], priorite_tag : p_input_priorite
+                    ,criticite_type : g_tab_code["criticite"], criticite_tag : p_input_criticite
+                    ,complexite_type : g_tab_code["complexite"], complexite_tag : p_input_complexite
+                    ,repro_type : g_tab_code["repro"], repro_tag : p_input_repro
+                    ,statut_type : g_tab_code["statut"], statut_tag : p_input_statut
+                    ,env_ori_type : g_tab_code["env_ori"], env_ori_tag : p_input_env_ori
+                    ,env_dest_type : g_tab_code["env_dest"], env_dest_tag : p_input_env_dest
+                    ,tp : p_input_tp
+                };
+                var retour = callBD("phpsql/mysql_upDateTicketContextDetails.php", "POST", "json", tabInput, "retour_updateContextTicket"); 
+            }else{
+                notification( "Pas de changement.", _WARNING);
+            }
+        } catch (er) {
+            log(0, "ERROR(updateContextTicket):" + er.message);
+        }
+    }
+    
+    /**
+     * AjouterTag
+     * Ajouter un tag
+     */
+    function AjouterTag() {
+        try {
+            var controle = true;
+            
+            var list_champs = new Array("input_new_label","input_new_descri");
+            
+            for(var indice in list_champs){
+                if(g_tab_changeInput[list_champs[indice]]){
+                    controle = true;
+                    break;
+                }
+            }
+            
+            if(controle){
+                var strMsgChamps = "Il faut revoir ce(s) champ(s) : ";
+                
+                for(var indice in list_champs){
+                    if(g_tab_testInput[list_champs[indice]] == false){
+                        strMsgChamps += $("#label_"+list_champs[indice]).text()+", ";
+                        controle = false;
+                    }
+                }
+                strMsgChamps += "Merci.";
+
+                if(controle){
+                    var p_type_tag_name = g_ajout_tag["type_tag_name"];
+                    var p_type_tag_id = g_ajout_tag["type_tag_id"];
+                    var p_input_new_label = $("#input_new_label").val();
+                    var p_input_new_descri = $("#input_new_descri").val();
+
+                    var tabInput = { type_tag_name : p_type_tag_name, type_tag_id : p_type_tag_id
+                        , input_new_label : p_input_new_label, input_new_descri : p_input_new_descri 
+                        , id_toc : g_id, code_user : auth, simpleTag : g_ajout_tag["unique"]
+                    };
+                    var retour = callBD("phpsql/mysql_insertTag.php", "POST", "json", tabInput, "retour_ajouterTag");
+                }else{
+                    notification( strMsgChamps, _WARNING);
+                }
+            }else{
+                notification( "Pas de changement.", _WARNING);
+            }
+        } catch (er) {
+            log(0, "ERROR(AjouterTag):" + er.message);
+        }
+    }
+    
+    /**
+     * createSysTicket
+     * Création d'un ticket
+     */
+    function createSysTicket() {
+        try {
+            var controle = true;
+            
+            var list_champs = new Array("input_label");
+            
+            var strMsgChamps = "Il faut revoir ce(s) champ(s) : ";
+            for(var indice in list_champs){
+                if(g_tab_testInput[list_champs[indice]] == false){
+                    strMsgChamps += $("#label_"+list_champs[indice]).text()+", ";
+                    controle = false;
+                }
+            }
+            strMsgChamps += "Merci.";
+
+            if(controle){
+                var p_input_label = $("#input_label").val();
+                var p_input_visible = $("#input_visible").val();
+                var p_input_editable = $("#input_editable").val();
+
+                var tabInput = { label : p_input_label, visible : p_input_visible, editable : p_input_editable, code_user : auth };
+                callBD("phpsql/mysql_createTicket.php", "POST", "json", tabInput, "retour_createSysTicket");
+            }else{
+                notification( strMsgChamps, _WARNING);
+            }
+        } catch (er) {
+            log(0, "ERROR(createSysTicket):" + er.message);
+        }
+    }
+    
+    /**
+     * retour_updateSysTicket
+     * Listener pour retour de l'update
+     * @param {String} p_retour
+     */
+    function retour_updateSysTicket(p_retour){
+        try {
+            if(p_retour["strErreur"] == ""){
+                chargerHistoChange(g_id);
+                $("#btUpdateSysTicket").addClass('ui-disabled');
+                notification( "Mise &agrave; jour effectu&eacute;e avec succ&egrave;s.", _SUCCES);
+            }else{
+                notification( "Erreur pendant la mise &agrave; jour. ("+p_retour["retour"]+")", _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(retour_updateSysTicket):" + er.message);
+        }
+    }
+    
+    /**
+     * retour_updateContextTicket
+     * Listener pour retour de l'update pour le context
+     * @param {String} p_retour
+     */
+    function retour_updateContextTicket(p_retour){
+        try {
+            if(p_retour["strErreur"] == ""){
+                var obj_statut = new Array();
+                var subArray = new Array();
+                subArray["id_tag"] = g_tag_statut;
+                obj_statut[0] = subArray;
+                chargerInputTagStatut('statut',g_tab_code["statut"],obj_statut,curUserRangIndice);
+                chargerHistoChange(g_id);
+                $("#btUpdateContextTicket").addClass('ui-disabled');
+                notification( "Mise &agrave; jour effectu&eacute;e avec succ&egrave;s.",_SUCCES);
+            }else{
+                notification( "Erreur pendant la mise &agrave; jour.("+p_retour["strErreur"]+")",_ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(retour_updateContextTicket):" + er.message);
+        }
+    }
+    
+    /**
+     * retour_createSysTicket
+     * Listener pour retour de la création
+     * @param {String} p_retour
+     */
+    function retour_createSysTicket(p_retour){
+        try {
+            if(p_retour["strErreur"] == ""){
+                window.location = './page_ticket.html?mili='+getMilise()+'&id='+p_retour["data"]["id"];
+            }else{
+                notification( "Erreur pendant la cr&eacute;ation.("+p_retour["strErreur"]+")", _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(retour_createSysTicket):" + er.message);
+        }
+    }
+    
+    /**
+     * retour_chargerHistoChange
+     * Listener pour retour de historique changement
+     * @param {String} p_retour
+     */
+    function retour_chargerHistoChange(p_retour){
+        try {
+            var obj = p_retour["data"]["resultat"]["data"];
+            
+            var nombre = parseInt(p_retour["data"]["resultat"]["nombre"]);
+            if(nombre > 0){
+                var strhtml = '<a id="link_histo" href="#div_histoChange" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-btn-inline ui-icon-info" data-ajax="false">Historique</a>';
+                $('#div_link_histo').html(strhtml).trigger('create');
+            }
+            
+            var strhtml = "";
+            
+            if(obj.length > 0){
+                strhtml += "<div data-role=\"collapsible\" data-collapsed=\"true\" data-mini=\"true\" id=\"content_histoChange\">";
+                strhtml += "<h4>Historique des changements</h4>";
+                strhtml += "<div class=\"ui-grid-b ui-responsive\">";
+                strhtml += "<div class=\"ui-block-a\"><div class=\"ui-bar ui-bar-d\"><b>Auteur</b></div></div>";
+                strhtml += "<div class=\"ui-block-b\"><div class=\"ui-bar ui-bar-d\"><b>Date du changement</b></div></div>";
+                strhtml += "<div class=\"ui-block-c\"><div class=\"ui-bar ui-bar-d\"><b>Changement</b></div></div>";
+
+                for(var indice in obj){
+                    strhtml += "<div class=\"ui-block-a\">";
+                    strhtml += "<div class=\"ui-bar ui-bar-e\">"+obj[indice]["auteur"]+"</div>";
+                    strhtml += "</div>";
+                    strhtml += "<div class=\"ui-block-b\">";
+                    strhtml += "<div class=\"ui-bar ui-bar-e\">"+obj[indice]["dateTime_change"]+"</div>";
+                    strhtml += "</div>";
+                    strhtml += "<div class=\"ui-block-c\">";
+                    strhtml += "<div class=\"ui-bar ui-bar-e\">"+obj[indice]["changement"]+"</div>";
+                    strhtml += "</div>";
+                }
+                strhtml += "</div><!-- Fermeture grid -->";
+                strhtml += "</div><!-- Fermeture content -->";
+            }
+            
+            if(strhtml == ""){
+                 $('#link_histo').hide();
+            }
+            
+            $('#div_histoChange').html(strhtml).trigger("create");
+        } catch (er) {
+            log(0, "ERROR(retour_chargerHistoChange):" + er.message);
+        }
+    }
+    
+    /**
+     * retour_ajouterTag
+     * Listener pour retour de ajouter tag
+     * @param {String} p_retour
+     */
+    function retour_ajouterTag(p_retour){
+        try {
+            if(p_retour["strErreur"] == ""){
+                chargerTags();
+                
+                if(g_ajout_tag["unique"] == "true"){
+                    var tab_tab = new Array();
+                    tab_tab["id_tag"] = p_retour["data"]["id"];
+                    var tab_id_tag = new Array();
+                    tab_id_tag[tab_id_tag.length] = tab_tab;
+
+                    chargerInputTagUnique(g_ajout_tag["type_tag_name"],g_tab_code[g_ajout_tag["type_tag_name"]],tab_id_tag,curUserRangIndice);
+                }else{
+                    chargerTagMultible(g_ajout_tag["type_tag_name"],g_tab_code[g_ajout_tag["type_tag_name"]],null,curUserRangIndice,true,g_size_list_tag[g_ajout_tag["type_tag_name"]]);
+                }
+                
+                $( "#popupNewTag" ).popup("close");
+            }else{
+                notification( "Erreur pendant la cr&eacute;ation. ("+p_retour["strErreur"]+")", _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(retour_ajouterTag):" + er.message);
+        }
+    }
+    
+    /**
+     * retour_ajouterLienTag
+     * Listener pour retour de ajouter lien pour tag multiple tag
+     * @param {json} p_retour
+     */
+    function retour_ajouterLienTag(p_retour){
+        try {
+            chargerTagMultible(p_retour["data"]["str_section"],p_retour["data"]["type_tag_id"],null,curUserRangIndice,true,g_size_list_tag[p_retour["data"]["str_section"]]);    
+        } catch (er) {
+            log(0, "ERROR(retour_ajouterLienTag):" + er.message);
+        }
+    }
+    
+    /**
+     * retirerTag
+     * Retire un lien tag toc
+     * @param {type} p_str_composant
+     * @param {type} p_lien_id
+     * @param {type} p_tag_id
+     * @param {type} p_id_type_tag
+     */
+    function retirerTag(p_str_composant,p_lien_id,p_tag_id,p_id_type_tag){
+        try {
+            var tabInput = { str_section : p_str_composant, id_lien : p_lien_id, id_tag : p_tag_id, id_type_tag : p_id_type_tag
+                , id_toc : g_id, code_user : auth
+            };
+            callBD("phpsql/mysql_retirerLienTag.php", "POST", "json", tabInput, "retour_retirerLienTag");
+        } catch (er) {
+            log(0, "ERROR(retirerTag):" + er.message);
+        }
+    }
+    
+    /**
+     * retour_retirerLienTag
+     * Listener pour retour de retirer lien pour tag multiple tag
+     * @param {json} p_retour
+     */
+    function retour_retirerLienTag(p_retour){
+        try {
+            chargerTagMultible(p_retour["data"]["str_section"],p_retour["data"]["type_tag_id"],null,curUserRangIndice,true,g_size_list_tag[p_retour["data"]["str_section"]]);
+        } catch (er) {
+            log(0, "ERROR(retour_retirerLienTag):" + er.message);
+        }
+    }
+    
+    /**
+     * setRespon
+     */
+    function setRespon(p_id_respon, p_label) {
+        try {
+            $('input[data-type="search"]').val("");
+            $( "#autocomplete_respon").html("");
+            $( "#autocomplete_respon").listview( "refresh" );
+            $( "#autocomplete_respon").trigger( "updatelayout");
+
+            var tabInput = { id_toc : g_id, code_user : auth, id_respon : p_id_respon};
+            var json_retour = callBD("phpsql/mysql_setRespon.php", "post", "json", tabInput);
+            
+            if(json_retour["strErreur"] == ""){
+                var strhtml = "";
+                strhtml += "<div data-role=\"controlgroup\" data-type=\"horizontal\" data-mini=\"true\">";
+                strhtml += "<a href=\"\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+p_label+"</a>";
+                strhtml += "<a href=\"javascript:supprimerRespon();\" data-role=\"button\" data-iconpos=\"notext\" data-icon=\"delete\">Supprimer</a>";
+                strhtml += "</div>";
+                $('#div_input_respon').html(strhtml).trigger('create');
+            }
+        } catch (er) {
+            log(0, "ERROR(setRespon):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerPjs
+     * charger les pjs
+     */
+    function chargerPjs(p_type_id) {
+        try {
+            var strhtml = "";
+            
+            var label = "";
+            for(indice in g_tab_code){
+                if(g_tab_code[indice] == p_type_id){
+                    label = indice;
+                    break;
+                }
+            }
+            
+            var tabInput = { id_toc : g_id, id_type : p_type_id };
+            var json_retour = callBD("phpsql/mysql_getPjs.php", "POST", "json", tabInput);
+            var nombre = parseInt(json_retour["data"]["resultat"]["nombre"]);
+            var data = json_retour["data"]["resultat"]["data"];
+            
+            if((nombre == 0)&&(g_mode == "consultation")){
+                strhtml = "N.A.";
+            }else{
+                for(var indice in data){
+                    strhtml += "<div data-role=\"controlgroup\" data-type=\"horizontal\" data-mini=\"true\">";
+                    strhtml += "<a href=\"API/scriptphp/download.php?milis=123456789&fic=../../pjs/"+data[indice]["id"]+"_"+data[indice]["label"]+"\" target=\"_new\" data-role=\"button\" data-icon=\"arrow-d\">"+data[indice]["label"]+"</a>";
+                    if(g_mode == "edition"){
+                        strhtml += "<a href=\"javascript:supprimerPj("+data[indice]["id"]+","+data[indice]["id_type"]+",'"+data[indice]["label"]+"');\" data-role=\"button\" data-iconpos=\"notext\" data-icon=\"delete\">Supprimer</a>";
+                    }
+                    strhtml += "</div>";
+                }
+                strhtml += "<div id=\"retour_list_pjs_"+p_type_id+"\"></div>";
+            }
+            
+            $('#div_'+label).html(strhtml).trigger("create");
+        } catch (er) {
+            log(0, "ERROR(chargerPjs):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerNewNote
+     * Charge le formulaire pour créer une nouvelle note
+     */
+    function chargerNewNote() {
+        try {
+            var strhtml = "";
+            
+            strhtml += "<div data-role=\"collapsible\" data-collapsed=\"true\" data-mini=\"true\" id=\"content_new_note\">";
+            strhtml += "    <h4>Ajouter une note</h4>";
+            strhtml += "    <div class=\"ui-bar ui-bar-d\">";
+            strhtml += "        La nouvelle note";
+            strhtml += "    </div>";
+            strhtml += "    <div class=\"ui-bar ui-bar-e\">";
+            strhtml += "        <div data-role=\"fieldcontain\"><textarea name=\"input_new_note_0\" id=\"input_new_note_0\" placeholder=\"votre note ici\" onkeyup=\"refreshUsed(this, event.keyCode);\"></textarea></div>";
+            strhtml += "        <label for=\"input_new_note_0\" id=\"tips_input_new_note_0\" style=\"width: 100%\"></label>";
+            strhtml += "    </div>";
+            strhtml += "    <a href=\"javascript:ajouterNote();\" data-role=\"button\" data-icon=\"plus\" data-mini=\"true\" class=\"ui-disabled\" id=\"bouton_input_new_note_0\" data-inline=\"true\">Ajouter</a>";
+            strhtml += "</div>";
+            
+            $('#div_new_note').html(strhtml).trigger("create");
+        } catch (er) {
+            log(0, "ERROR(chargerNewNote):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerNotes
+     * Charge les notes déjà enregistrées
+     */
+    function chargerNotes() {
+        try {
+            var tabInput = { id_toc : g_id, id_type : 84, id_note : "" };
+            var json_notes = callBD("phpsql/mysql_getNotes.php", "POST", "json", tabInput);
+            
+            var strhtml = "";
+            
+            var nombre = parseInt(json_notes["data"]["resultat"]["nombre"]);
+            if(nombre > 0){
+                var strhtml = '<a id="link_notes" href="#content_notes" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-btn-inline ui-icon-info" data-ajax="false">Notes</a>';
+                $('#div_link_notes').html(strhtml).trigger('create');
+            }
+            
+            for(var indice in json_notes["data"]["resultat"]["data"]){
+                strhtml += "<div class=\"ui-bar ui-bar-d\">";
+                strhtml += "<b>Note</b>";
+                strhtml += "</div>";
+                strhtml += "<div class=\"ui-bar ui-bar-e\">";
+                if(g_mode == "edition"){
+                    strhtml += "<div data-role=\"fieldcontain\"><textarea name=\"input_note_"+json_notes["data"]["resultat"]["data"][indice]["id"]+"\" id=\"input_note_"+json_notes["data"]["resultat"]["data"][indice]["id"]+"\" placeholder=\"votre note ici\" onkeyup=\"refreshUsed(this, event.keyCode);\">"+json_notes["data"]["resultat"]["data"][indice]["note"]+"</textarea></div>";
+                    strhtml += "<label for=\"input_note_"+json_notes["data"]["resultat"]["data"][indice]["id"]+"\" id=\"tips_input_note_"+json_notes["data"]["resultat"]["data"][indice]["id"]+"\" style=\"width: 100%\"></label>";
+                }else{
+                    strhtml += json_notes["data"]["resultat"]["data"][indice]["note"].replace(/\n/g, "<br/>");
+                }
+                strhtml += "</div>";
+                
+                if(g_mode == "edition"){
+                    strhtml += "<div class=\"ui-bar ui-bar-d\">";
+                    strhtml += "<b>Actions</b>";
+                    strhtml += "</div>";
+                    strhtml += "<div class=\"ui-bar ui-bar-e\">";
+                    strhtml += "<a href=\"javascript:updateNote('input_note_"+json_notes["data"]["resultat"]["data"][indice]["id"]+"', "+json_notes["data"]["resultat"]["data"][indice]["id"]+", 87);\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\" class=\"ui-disabled\" id=\"bouton_input_note_"+json_notes["data"]["resultat"]["data"][indice]["id"]+"\">Mettre &agrave; jour</a>";
+                    strhtml += "<a href=\"javascript:deleteNote("+json_notes["data"]["resultat"]["data"][indice]["id"]+");\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Retirer\" data-icon=\"delete\">Retirer</a>";
+                    strhtml += "</div>";
+                }
+                strhtml += "<div class=\"ui-grid-a ui-responsive\">";
+                strhtml += "<div class=\"ui-block-a\">";
+                strhtml += "<div class=\"ui-bar ui-bar-d\">";
+                strhtml += "<b>Auteur</b>";
+                strhtml += "</div>";
+                strhtml += "</div>";
+                strhtml += "<div class=\"ui-block-b\">";
+                strhtml += "<div class=\"ui-bar ui-bar-d\">";
+                strhtml += "<b>Date</b>";
+                strhtml += "</div>";
+                strhtml += "</div>";
+                strhtml += "<div class=\"ui-block-a\">";
+                strhtml += "<div class=\"ui-bar ui-bar-e\">";
+                strhtml += json_notes["data"]["resultat"]["data"][indice]["auteur_creation"];
+                strhtml += "</div>";
+                strhtml += "</div>";
+                strhtml += "<div class=\"ui-block-b\">";
+                strhtml += "<div class=\"ui-bar ui-bar-e\">";
+                strhtml += json_notes["data"]["resultat"]["data"][indice]["dateTime_creation"];
+                strhtml += "</div>";
+                strhtml += "</div>";
+                strhtml += "</div>";
+                
+                strhtml += "<br>";
+            }
+            
+            if((strhtml == "")&&(g_mode != "edition")){
+                 $('#content_notes').hide();
+                 $('#link_notes').hide();
+            }
+            
+            $('#div_notes').html(strhtml).trigger("create");
+        } catch (er) {
+            log(0, "ERROR(chargerNotes):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerInputTagUnique
+     * Factorisation pour la mise à jour des tag unique
+     * @param {type} p_str_composant
+     * @param {type} p_id_type_tag
+     * @param {type} p_data
+     * @param {type} p_curUserRangIndice
+     * @param {type} p_ajout
+     * @returns {undefined}
+     */
+    function chargerInputTagUnique(p_str_composant, p_id_type_tag, p_data, p_curUserRangIndice, p_ajout){
+        try {
+            var p_id_tag = "0";
+            
+            var json_tags = getTagsByType(g_tags, p_id_type_tag);
+            
+            var strhtml = "";
+            strhtml += "<select name=\"input_"+p_str_composant+"\" id=\"input_"+p_str_composant+"\" onchange=\"onChangeInput(this);\" data-mini=\"true\">";
+            if(p_data.length == 0){
+                strhtml += "<option value=\"\" Selected>N.A.</option>";
+            }else{
+                p_id_tag = p_data[0]["id_tag"];
+            }
+            
+            if(p_ajout&&(p_curUserRangIndice <= 20)){
+                 strhtml += "<option value=\"#\">Nouvelle option</option>";
+            }
+            
+            for(var indice in json_tags){
+                if(p_id_tag ==  json_tags[indice]["id"]){
+                    strSelected = " Selected";
+                }else{
+                    strSelected = "";
+                }
+                strhtml += "<option value=\""+json_tags[indice]["id"]+"\" "+strSelected+">"+json_tags[indice]["label"]+"</option>";
+            }
+            strhtml += "</select>";
+            $('#div_input_'+p_str_composant).html(strhtml).trigger("create");
+        } catch (er) {
+            log(0, "ERROR(chargerInputTagUnique):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerTagMultible
+     * Factorisation pour la mise à jour des tag multiple
+     * @param {type} p_str_composant
+     * @param {type} p_id_type_tag
+     * @param {type} p_data
+     * @param {type} p_curUserRangIndice
+     * @param {type} p_edition
+     * @param {type} p_limit
+     * @returns {undefined}
+     */
+    function chargerTagMultible(p_str_composant,p_id_type_tag,p_data,p_curUserRangIndice,p_edition,p_limit){
+        try {
+            var strhtml = "";
+            
+            if(p_data == null){
+                var tabInput = { id_toc : g_id, id_type_tag : p_id_type_tag };
+                var retour_json = callBD("phpsql/mysql_getLiensTags.php", "POST", "json", tabInput);
+                var p_data = retour_json["data"]["data"];
+            }
+            
+            if(p_data.length != 0){
+                for(var indice in p_data){
+                    lien_id = p_data[indice]["id"];
+                    tag_id = p_data[indice]["id_tag"];
+                    tag_label = p_data[indice]["label"];
+                    if(g_mode == "consultation"){
+                        var mostOld = getParameter('mostOld');
+                        strhtml += "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_"+p_str_composant+"="+tag_id+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\""+tag_label+"\">"+tag_label+"</a>";
+                    }else if(g_mode == "edition"){
+                        strhtml += '<a href="#" onclick="retirerTag(\''+p_str_composant+'\',\''+lien_id+'\',\''+tag_id+'\',\''+p_id_type_tag+'\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-delete ui-btn-icon-left" title="'+tag_label+'">'+tag_label+'</a>';
+                    }
+                }
+            }else{
+                if(g_mode == "consultation"){
+                    strhtml += "N.A.";
+                }   
+            }
+
+            if(g_mode == "edition"){
+                if(p_data.length < p_limit){
+                    var json_tags = getTagsByType(g_tags, p_id_type_tag);
+
+                    strhtml += "<select name=\"input_"+p_str_composant+"\" id=\"input_"+p_str_composant+"\" onchange=\"onChangeInputMultiTag(this, '"+p_str_composant+"', '"+p_id_type_tag+"');\" data-mini=\"true\" data-icon=\"plus\">";
+                    strhtml += "<option value=\"\">Ajouter tag</option>";
+                    for(var indice in json_tags){
+                        var not_in_list = true;
+                        var tout_tag_id = json_tags[indice]["id"];
+                        var tout_tag_label= json_tags[indice]["label"];
+                        for(var indice in p_data){
+                            tag_id = p_data[indice]["id_tag"];
+                            if(tag_id == tout_tag_id){
+                                not_in_list = false;
+                                break;
+                            }
+                        }
+                        if(not_in_list){
+                            strhtml += "<option value=\""+tout_tag_id+"\">"+tout_tag_label+"</option>";
+                        }
+                    }
+
+                    if(p_curUserRangIndice <= 20){
+                         strhtml += "<option value=\"#\">Nouvelle option</option>";
+                    }
+
+                    strhtml += "</select>";
+                }
+            }
+             
+             $('#div_input_'+p_str_composant).html(strhtml).trigger("create");
+        } catch (er) {
+            log(0, "ERROR(chargerTagMultible):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerRelations
+     * Charge les relations
+     * @param {type} p_id
+     * @param {type} p_data
+     */
+    function chargerRelations(p_id, p_data){
+        try {
+            if(p_data == null){
+                var tabInput = { id_toc : g_id };
+                var json_retour = callBD("phpsql/mysql_getRelations.php", "POST", "json", tabInput);
+                p_data = json_retour["data"]["resultat"];
+            }
+            
+            var strhtml_ori = "";
+            var strhtml_dest = "";
+            for(var indice in p_data["relations"]){
+                if(p_data["relations"][indice]["obj_origine"] == p_id){
+                    strhtml_dest += "<fieldset data-role=\"controlgroup\" data-type=\"horizontal\" data-inline=\"true\" data-mini=\"true\">";
+                    strhtml_dest += "<a href=\"javascript:window.location = ('./page_ticket.html?mili="+getMilise()+"&id="+p_data["relations"][indice]["obj_dest"]+"&id_page="+g_id_page_ori+"')\" data-role=\"button\">"+p_data["relations"][indice]["label_dest"]+"</a>";
+                    strhtml_dest += "<a href=\"javascript:supprimerRelation("+p_data["relations"][indice]["id"]+","+p_data["relations"][indice]["obj_dest"]+",'desc')\" data-role=\"button\" data-iconpos=\"notext\" data-icon=\"delete\">Supprimer</a>";
+                    strhtml_dest += "</fieldset>";
+                }
+                if(p_data["relations"][indice]["obj_dest"] == p_id){
+                    strhtml_ori += "<fieldset data-role=\"controlgroup\" data-type=\"horizontal\" data-inline=\"true\" data-mini=\"true\">";
+                    strhtml_ori += "<a href=\"javascript:window.location = ('./page_ticket.html?mili="+getMilise()+"&id="+p_data["relations"][indice]["obj_origine"]+"&id_page="+g_id_page_ori+"')\" data-role=\"button\">"+p_data["relations"][indice]["label_ori"]+"</a>";
+                    strhtml_ori += "<a href=\"javascript:supprimerRelation("+p_data["relations"][indice]["id"]+","+p_data["relations"][indice]["obj_origine"]+",'asc')\" data-role=\"button\" data-iconpos=\"notext\" data-icon=\"delete\">Supprimer</a>";
+                    strhtml_ori += "</fieldset>";
+                }
+            }
+            strhtml_ori += "<ul id=\"autocomplete_asc\" data-role=\"listview\" data-inset=\"true\" data-filter=\"true\" data-filter-placeholder=\"4 lettres au moins...\"></ul>";
+            strhtml_dest += "<ul id=\"autocomplete_desc\" data-role=\"listview\" data-inset=\"true\" data-filter=\"true\" data-filter-placeholder=\"4 lettres au moins...\"></ul>";
+
+            $('#div_relations_avant').html(strhtml_ori).trigger('create');
+            $('#div_relations_apres').html(strhtml_dest).trigger('create');
+            
+            $( "#autocomplete_asc" ).on( "filterablebeforefilter", function ( e, data ) {
+                var $ul = $( this ),
+                $input = $( data.input ),
+                value = $input.val(),
+                html = "";
+                $ul.html( "" );
+                if ( value && value.length > 3 ) {
+                    $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+                    $ul.listview( "refresh" );
+                    var tabInput = { recherche : $input.val() };
+                    var retour = callBD("phpsql/mysql_getTicketsAutoCompl.php", "POST", "json", tabInput);
+                    var json_retour = retour["data"]["resultat"]["data"];
+                    for(var indice in json_retour){
+                        if(json_retour[indice]["id"] != g_id){
+                            html += "<li><a href=\"javascript:ajouterRelation("+json_retour[indice]["id"]+",'asc')\">"+json_retour[indice]["label"]+"</a></li>";
+                        }
+                    }
+                    $ul.html( html );
+                    $ul.listview( "refresh" );
+                    $ul.trigger( "updatelayout");
+                }
+            });
+            
+            $( "#autocomplete_desc" ).on( "filterablebeforefilter", function ( e, data ) {
+                var $ul = $( this ),
+                $input = $( data.input ),
+                value = $input.val(),
+                html = "";
+                $ul.html( "" );
+                if ( value && value.length > 3 ) {
+                    $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+                    $ul.listview( "refresh" );
+                    var tabInput = { recherche : $input.val() };
+                    var retour = callBD("phpsql/mysql_getTicketsAutoCompl.php", "POST", "json", tabInput);
+                    var json_retour = retour["data"]["resultat"]["data"];
+                    for(var indice in json_retour){
+                        if(json_retour[indice]["id"] != g_id){
+                            html += "<li><a href=\"javascript:ajouterRelation("+json_retour[indice]["id"]+",'desc')\">"+json_retour[indice]["label"]+"</a></li>";
+                        }
+                    }
+                    $ul.html( html );
+                    $ul.listview( "refresh" );
+                    $ul.trigger( "updatelayout");
+                }
+            });
+            
+        } catch (er) {
+            log(0, "ERROR(chargerRelations):" + er.message);
+        }
+    }
+    
+    /**
+     * ajouterRelation
+     * Ajoute une relation
+     * @param {type} p_id
+     * @param {type} p_type
+     */
+    function ajouterRelation(p_id, p_type){
+        try {
+            var tabInput = { id_toc : g_id, id_toc_autre : p_id, courant : p_type, code_user : auth};
+            var json_retour = callBD("phpsql/mysql_ajouterRelation.php", "POST", "json", tabInput);
+            
+            if(json_retour["strErreur"] == ""){
+                chargerRelations(g_id, null);
+            }else{
+                notification(json_retour["strErreur"],_ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(ajouterRelation):" + er.message);
+        }
+    }
+    
+    /**
+     * supprimerRelation
+     * Supprmier une relation
+     * @param {type} p_id_relation
+     * @param {type} p_id
+     * @param {type} p_type
+     */
+    function supprimerRelation(p_id_relation, p_id, p_type){
+        try {
+            var tabInput = { id_relation : p_id_relation, id_toc : g_id, id_toc_autre : p_id, courant : p_type, code_user : auth};
+            var json_retour = callBD("phpsql/mysql_supprimerRelation.php", "POST", "json", tabInput);
+            if(json_retour["strErreur"] == ""){
+                chargerRelations(g_id, null);
+            }else{
+                notification(json_retour["strErreur"],_ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(supprimerRelation):" + er.message);
+        }
+    }
+    
+    /**
+     * supprimerRespon
+     * Supprmier un respon
+     * @param {type} p_id
+     */
+    function supprimerRespon(){
+        try {
+            var tabInput = { id_toc : g_id, code_user : auth};
+            var json_retour = callBD("phpsql/mysql_supprimerRespon.php", "POST", "json", tabInput);
+            if(json_retour["strErreur"] == ""){
+                $('#div_input_respon').text("N.A.");
+            }else{
+                notification(json_retour["strErreur"],_ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(supprimerRespon):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerInputTagStatut
+     * Factorisation pour la mise à jour du tag statut
+     * @param {type} p_str_composant
+     * @param {type} p_id_type_tag
+     * @param {type} p_data
+     * @param {type} p_curUserRangIndice
+     */
+    function chargerInputTagStatut(p_str_composant, p_id_type_tag, p_data, p_curUserRangIndice){
+        try {
+            var p_id_tag = "0";
+            
+            var tabInput = { id_type_tag : p_id_type_tag, id_toc : g_id };
+            var retour = callBD("phpsql/mysql_getTagsStatut.php", "POST", "json", tabInput);
+            var json_tags = retour["data"]["resultat"]["data"];
+            
+            var strhtml = "";
+            strhtml += "<select name=\"input_"+p_str_composant+"\" id=\"input_"+p_str_composant+"\" onchange=\"onChangeInput(this);\" data-mini=\"true\">";
+            if(p_data.length == 0){
+                strhtml += "<option value=\"\" Selected>N.A.</option>";
+            }else{
+                p_id_tag = p_data[0]["id_tag"];
+            }
+            
+            for(var indice in json_tags){
+                if(p_id_tag == json_tags[indice]["id"]){
+                    strSelected = " Selected";
+                    g_tag_statut = p_id_tag;
+                }else{
+                    strSelected = "";
+                }
+                strhtml += "<option value=\""+json_tags[indice]["id"]+"\" "+strSelected+">"+json_tags[indice]["label"]+"</option>";
+            }
+            strhtml += "</select>";
+            $('#div_input_'+p_str_composant).html(strhtml).trigger("create");
+        } catch (er) {
+            log(0, "ERROR(chargerInputTagUnique):" + er.message);
+        }
+    }
+    
+    /**
+     * vueDetailsOceane
+     * Listener pour l'appel du détail Océane
+     * @param {String} p_retour
+     */
+    function vueDetailsOceane(p_retour){
+        try {
+            if(p_retour["data"]["Corps"] != false){
+                var strhtml = "";
+                strhtml += "<a href=\"#content_oceane\" class=\"ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-btn-inline ui-icon-info\" data-ajax=\"false\">Info Oc&eacute;ane</a>";
+                $('#div_link_oceane').html(strhtml).trigger("create");
+                
+                var strhtml = "";
+                strhtml += "<div data-role=\"collapsible\" data-collapsed=\"true\" data-mini=\"true\" id=\"content_oceane\">";
+                strhtml += "<h4>Informations Oc&eacute;ane</h4>";
+                strhtml += iterateAttributesAndFormHTMLLabels(p_retour["data"]);
+                strhtml += "</div><!-- Fermeture content -->";
+            
+                $('#detailsOceane').html(strhtml).trigger("create");
+            }else{
+                $('#detailsOceane').html("").trigger("create");
+            }
+        } catch (er) {
+            log(0, "ERROR(vueDetailsOceane):" + er.message);
+        }
+    }
+    
+    /**
+     * vueDetailsAutomate
+     * Listener pour l'appel du détail Automate
+     * @param {String} p_retour
+     */
+    function vueDetailsAutomate(p_retour){
+        try {
+            if(p_retour["data"]["Corps"] != false){
+                var strhtml = "";
+                strhtml += "<a href=\"#content_automate\" class=\"ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-btn-inline ui-icon-info\" data-ajax=\"false\">Info Automate</a>";
+                $('#div_link_automate').html(strhtml).trigger("create");
+                
+                var strhtml = "";
+                strhtml += "<div data-role=\"collapsible\" data-collapsed=\"true\" data-mini=\"true\" id=\"content_automate\">";
+                strhtml += "<h4>Informations Automate</h4>";
+                strhtml += iterateAttributesAndFormHTMLLabels(p_retour["data"]);
+                strhtml += "</div><!-- Fermeture content -->";
+            
+                $('#detailsAutomate').html(strhtml).trigger("create");
+            }else{
+                $('#detailsAutomate').html("").trigger("create");
+            }
+        } catch (er) {
+            log(0, "ERROR(vueDetailsAutomate):" + er.message);
+        }
+    }
+    
+    /**
+     * vueModeConsultation
+     * Listener pour l'appel du détail Noa mode consultation
+     * @param {String} p_retour
+     */
+    function vueModeConsultation(p_retour){
+        try {
+            var mostOld = getParameter('mostOld');
+            
+            var obj = p_retour["data"];
+            
+            //Chargement utile
+            var json_rangs = g_rangs;
+            
+            //------------------------------------------------------------------
+            //system
+            $('#div_input_id').html(change_vide(obj["id"]));
+            $('#div_input_dateCreation').html(change_vide(obj["date_creation"]));
+            $('#div_input_auteur').html(change_vide(obj["auteur"]));
+            $('#div_input_dateModif').html(change_vide(obj["date_modification"]));
+            $('#div_input_auteurModif').html(change_vide(obj["auteur_modification"]));
+            $('#div_input_dateLock').html(change_vide(obj["date_lock"]));
+            $('#div_input_auteurLock').html(change_vide(obj["auteur_lock"]));
+            
+            // version
+            var version = "N.A.";
+            if((typeof obj["version"] != "undefined")){
+                version = obj["version"];
+            }
+            $('#div_input_version').html(version).trigger('create');
+            
+            //Fin chargement system
+            //------------------------------------------------------------------
+            //Context
+            //Label
+            var label = obj["label"];
+            $('#div_input_label').html(change_vide(label));
+            //Mise à jour du titre page avec le label
+            document.title = getParameter("nom_site") + " - " + g_label;
+            $('#id_titre').html(g_label);
+            
+            //visible et editable
+            strhtml_visible = "Tous";
+            strhtml_editable = "Tous";
+            for(var indice in json_rangs){
+                if(obj["visibilite"].length > 0){
+                    if(obj["visibilite"][0]["id_tag"] ==  json_rangs[indice]["id"]){
+                        strhtml_visible = json_rangs[indice]["labelle"];
+                    }
+                }
+                if(obj["editable"].length > 0){
+                    if(obj["editable"][0]["id_tag"] ==  json_rangs[indice]["id"]){
+                        strhtml_editable = json_rangs[indice]["labelle"];
+                        var curUserRangIndice = tabInfoLogin[0][3];
+                        var curUserRangId = tabInfoLogin[0][5];
+
+                        if(curUserRangIndice <= obj["editable"][0]["id_tag"]){
+                            var strhtml = "<a href=\"javascript:window.location = ('./page_ticket.html?mili="+getMilise()+"&id_page="+g_id_page_ori+"&id="+g_id+"&edit=oui');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Editer\" data-icon=\"gear\">Editer</a>";
+                            $('#action_button').html(strhtml).trigger('create');
+                        }
+                    }
+                }
+            }
+            $('#div_input_visible').html(strhtml_visible);
+            $('#div_input_editable').html(strhtml_editable);
+            
+            //nature
+            var nature = change_vide(obj["nature"],0,"label");
+            if(nature != 'N.A.'){
+                nature = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_nature="+obj["nature"][0]["id_tag"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+nature+"</a>";
+            }
+            $('#div_input_nature').html(nature).trigger('create');
+            
+            //priorite
+            var priorite = change_vide(obj["priorite"],0,"label");
+            if(priorite != 'N.A.'){
+                priorite = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_priorite="+obj["priorite"][0]["id_tag"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+priorite+"</a>";
+            }
+            $('#div_input_priorite').html(priorite).trigger('create');
+            
+            //criticite
+            var criticite = change_vide(obj["criticite"],0,"label");
+            if(criticite != 'N.A.'){
+                criticite = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_criticite="+obj["criticite"][0]["id_tag"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+criticite+"</a>";
+            }
+            $('#div_input_criticite').html(criticite).trigger('create');
+            
+            //complexite
+            var complexite = change_vide(obj["complexite"],0,"label");
+            if(complexite != 'N.A.'){
+                complexite = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_complexite="+obj["complexite"][0]["id_tag"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+complexite+"</a>";
+            }
+            $('#div_input_complexite').html(complexite).trigger('create');
+            
+            //repro
+            var repro = change_vide(obj["repro"],0,"label");
+            if(repro != 'N.A.'){
+                repro = "<a href=\"javascript:window.location = ('');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+repro+"</a>";
+            }
+            $('#div_input_repro').html(repro).trigger('create');
+            
+            //statut
+            var statut = change_vide(obj["statut"],0,"label");
+            if(statut != 'N.A.'){
+                statut = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_statut="+obj["statut"][0]["id_tag"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+statut+"</a>";
+            }
+            $('#div_input_statut').html(statut).trigger('create');
+            
+            //env_ori
+            var env_ori = change_vide(obj["env_ori"],0,"label");
+            if(env_ori != 'N.A.'){
+                env_ori = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_env_ori="+obj["env_ori"][0]["id_tag"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+env_ori+"</a>";
+            }
+            $('#div_input_env_ori').html(env_ori).trigger('create');
+            
+            //env_dest
+            var env_dest = change_vide(obj["env_dest"],0,"label");
+            if(env_dest != 'N.A.'){
+                env_dest = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_env_dest="+obj["env_dest"][0]["id_tag"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+env_dest+"</a>";
+            }
+            $('#div_input_env_dest').html(env_dest).trigger('create');
+            
+            //categorie
+            chargerTagMultible("categorie",g_tab_code["categorie"],obj["categorie"],curUserRangIndice,false,0);
+            
+            //sous_categorie
+            chargerTagMultible("sous_categorie",g_tab_code["sous_categorie"],obj["sous_categorie"],curUserRangIndice,false,0);
+            
+            //description
+            var description = change_vide(obj["description"],0,"note");
+            $('#div_input_description').html(description.replace(/\n/g, "<br/>"));
+            
+            // tp
+            $('#div_input_tp').html(change_vide(obj["tp"],0,"note"));
+            
+            // responsable
+            var respon = "N.A.";
+            if((typeof obj["respon"][0] != "undefined")){
+                respon = "<a href=\"javascript:window.location = ('./page_inventaire.html?mili="+getMilise()+"&filtreGet=ok&core_dateTime_creation="+mostOld+" 00:00:01&core_dateTime_creation_option=AP&core_respon="+obj["respon"][0]["code_user"]+"');\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+obj["respon"][0]["nom"]+" "+obj["respon"][0]["prenom"]+"</a>";
+            }
+            $('#div_input_respon').html(respon).trigger('create');
+            
+            // Relations
+            var strhtml = "";
+            strhtml += "<a data-inline=\"true\" data-role=\"button\" data-icon=\"arrow-r\" data-iconpos=\"notext\" href=\"#\"></a><a href=\"#\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+label+"</a><a data-inline=\"true\" data-role=\"button\" data-icon=\"arrow-r\" data-iconpos=\"notext\" href=\"#\">";
+            $('#div_relations_id_toc').html(strhtml).trigger('create');
+            
+            var strhtml_ori = "";
+            var strhtml_dest = "";
+            for(var indice in obj["relations"]){
+                if(obj["relations"][indice]["obj_origine"] == g_id){
+                    strhtml_dest += "<a href=\"javascript:window.location = ('./page_ticket.html?mili="+getMilise()+"&id="+obj["relations"][indice]["obj_dest"]+"&id_page="+g_id_page_ori+"')\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+obj["relations"][indice]["label_dest"]+"</a>";
+                }
+                if(obj["relations"][indice]["obj_dest"] == g_id){
+                    strhtml_ori += "<a href=\"javascript:window.location = ('./page_ticket.html?mili="+getMilise()+"&id="+obj["relations"][indice]["obj_origine"]+"&id_page="+g_id_page_ori+"')\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+obj["relations"][indice]["label_ori"]+"</a>";
+                }
+            }
+            $('#div_relations_avant').html(strhtml_ori).trigger('create');
+            $('#div_relations_apres').html(strhtml_dest).trigger('create');
+            
+            //Fin chargement context
+            //------------------------------------------------------------------
+            /*Cause*/
+            chargerTagMultible("causes_tags",g_tab_code["causes_tags"],obj["causes_tags"],curUserRangIndice,false,0);
+            
+            var causes_note = change_vide(obj["causes_note"],0,"note");
+            $('#div_input_causes_note').html(causes_note.replace(/\n/g, "<br/>"));
+            
+            chargerPjs(g_tab_code["causes_pjs"]);
+            
+            if((causes_note == "")||(causes_note == "N.A.")){
+                $('#content_causes').collapsible( "collapse" );
+            }
+            
+            //------------------------------------------------------------------
+            /*impacts*/
+            chargerTagMultible("impacts_tags",g_tab_code["impacts_tags"],obj["impacts_tags"],curUserRangIndice,false,0);
+            
+            var impacts_note = change_vide(obj["impacts_note"],0,"note");
+            $('#div_input_impacts_note').html(impacts_note.replace(/\n/g, "<br/>"));
+            
+            chargerPjs(g_tab_code["impacts_pjs"]);
+            
+            if((impacts_note == "")||(impacts_note == "N.A.")){
+                $('#content_impacts').collapsible( "collapse" );
+            }
+            
+            //------------------------------------------------------------------
+            /*repro*/
+            chargerTagMultible("repro_tags",g_tab_code["repro_tags"],obj["repro_tags"],curUserRangIndice,false,0);
+            
+            var repro_note = change_vide(obj["repro_note"],0,"note");
+            $('#div_input_repro_note').html(repro_note.replace(/\n/g, "<br/>"));
+            
+            chargerPjs(g_tab_code["repro_pjs"]);
+            
+            if((repro_note == "")||(repro_note == "N.A.")){
+                $('#content_repro').collapsible( "collapse" );
+            }
+            
+            //------------------------------------------------------------------
+            /*reso*/
+            chargerTagMultible("reso_tags",g_tab_code["reso_tags"],obj["reso_tags"],curUserRangIndice,false,0);
+           
+            var reso_note = change_vide(obj["reso_note"],0,"note");
+            $('#div_input_reso_note').html(reso_note.replace(/\n/g, "<br/>"));
+            
+            chargerPjs(g_tab_code["reso_pjs"]);
+            
+            if((reso_note == "")||(reso_note == "N.A.")){
+                $('#content_reso').collapsible( "collapse" );
+            }
+            
+            //------------------------------------------------------------------
+            //Fin chargement
+            $( "#content_noa" ).collapsible( "expand" );
+            
+            //------------------------------------------------------------------
+            if(((g_label == null)||(g_label == ""))&&(label != "")){
+                //Mise à jour du titre page avec le label
+                document.title = getParameter("nom_site") + " - " + change_vide(label);
+                $('#id_titre').html(change_vide(label));
+                chargerDetailsOceane(label);
+                chargerDetailsAutomate(label);
+            }
+        } catch (er) {
+            log(0, "ERROR(vueModeConsultation):" + er.message);
+        }
+    }
+    
+    /**
+     * vueModeEdtion
+     * Listener pour l'appel du détail Noa mode consultation
+     * @param {String} p_retour
+     */
+    function vueModeEdtion(p_retour){
+        try {
+            var obj = p_retour["data"];
+            var label = obj["label"];
+            
+            //Chargement util : les rangs
+            var json_rangs = g_rangs;
+            
+            //------------------------------------------------------------------
+            //label
+            var label = obj["label"];
+            //Mise à jour du titre page avec le label
+            document.title = getParameter("nom_site") + " - " + g_label;
+            $('#id_titre').html(g_label);
+            
+            var strhtml = "<input type=\"text\" name=\"input_label\" id=\"input_label\" value=\""+change_vide(obj["label"])+"\" data-mini=\"true\" placeholder=\"votre label ici\" onkeyup=\"ecoute(this, event.keyCode);onChangeInputG(this,'#btUpdateSysTicket');\" onblur=\"onblurInput(this);\" onfocus=\"onfocusInput(this);\"/>";
+            $('#div_input_label').html(strhtml).trigger('create');
+            g_tab_testInput["input_label"]=true; 
+            
+            //------------------------------------------------------------------
+            //Visible
+            var visibleIndice = 100;
+            var visibleIdRang = 0;
+            if(obj["visibilite"].length != 0){
+                visibleIdRang = parseInt(obj["visibilite"][0]["id_tag"]);
+                for(var indice in json_rangs){
+                    if(visibleIdRang ==  parseInt(json_rangs[indice]["id"])){
+                        visibleIndice = parseInt(json_rangs[indice]["indice"]);
+                    }
+                }
+            }
+            var curUserRangIndice = tabInfoLogin[0][3];
+            var curUserRangId = tabInfoLogin[0][5];
+            
+            var strhtml = "";
+            
+            if(curUserRangIndice > visibleIndice){
+                strhtml = "Tous";
+                for(var indice in json_rangs){
+                    if(visibleIndice ==  parseInt(json_rangs[indice]["indice"])){
+                        strhtml = json_rangs[indice]["labelle"];
+                    }
+                }
+            }else{
+                strhtml += "<select name=\"input_visible\" id=\"input_visible\" onchange=\"onChangeInputG(this,'#btUpdateSysTicket');\" data-mini=\"true\">";
+                strhtml += "<option value=\"1\">Tous</option>";
+                for(var indice in json_rangs){
+                    if(curUserRangIndice <=  parseInt(json_rangs[indice]["indice"])){
+                        if(visibleIndice ==  parseInt(json_rangs[indice]["indice"])){
+                            strSelected = " Selected";
+                        }else{
+                            strSelected = "";
+                        }
+                        strhtml += "<option value=\""+json_rangs[indice]["id"]+"\" "+strSelected+">"+json_rangs[indice]["labelle"]+"</option>";
+                    }
+                }
+                strhtml += "</select>";
+            }
+            
+            $('#div_input_visible').html(strhtml).trigger("create");
+            
+            //------------------------------------------------------------------
+            //editable
+            var editableIndice = 100;
+            var editableIdRang = 0;
+            if(obj["editable"].length != 0){
+                editableIdRang = parseInt(obj["editable"][0]["id_tag"]);
+                for(var indice in json_rangs){
+                    if(editableIdRang ==  parseInt(json_rangs[indice]["id"])){
+                        editableIndice = parseInt(json_rangs[indice]["indice"]);
+                    }
+                }
+            }
+            
+            var curUserRangIndice = tabInfoLogin[0][3];
+            var curUserRangId = tabInfoLogin[0][5];
+            
+            var strhtml = "";
+            
+            if(curUserRangIndice > editableIndice){
+                strhtml = "Tous";
+                for(var indice in json_rangs){
+                    if(editableIndice ==  parseInt(json_rangs[indice]["indice"])){
+                        strhtml = json_rangs[indice]["labelle"];
+                    }
+                }
+            }else{
+                strhtml += "<select name=\"input_visible\" id=\"input_editable\" onchange=\"onChangeInputG(this,'#btUpdateSysTicket');\" data-mini=\"true\">";
+                strhtml += "<option value=\"1\">Tous</option>";
+                for(var indice in json_rangs){
+                    if(curUserRangIndice <=  parseInt(json_rangs[indice]["indice"])){
+                        if(editableIndice ==  parseInt(json_rangs[indice]["indice"])){
+                            strSelected = " Selected";
+                        }else{
+                            strSelected = "";
+                        }
+                        strhtml += "<option value=\""+json_rangs[indice]["id"]+"\" "+strSelected+">"+json_rangs[indice]["labelle"]+"</option>";
+                    }
+                }
+                strhtml += "</select>";
+            }
+            
+            $('#div_input_editable').html(strhtml).trigger("create");
+            
+            //------------------------------------------------------------------
+            chargerInputTagUnique('nature',g_tab_code["nature"],obj["nature"],curUserRangIndice);
+            
+            chargerInputTagUnique('priorite',g_tab_code["priorite"],obj["priorite"],curUserRangIndice);
+            
+            chargerInputTagUnique('criticite',g_tab_code["criticite"],obj["criticite"],curUserRangIndice);
+            
+            chargerInputTagUnique('complexite',g_tab_code["complexite"],obj["complexite"],curUserRangIndice);
+            
+            chargerInputTagUnique('repro',g_tab_code["repro"],obj["repro"],curUserRangIndice);
+            
+            chargerInputTagStatut('statut',g_tab_code["statut"],obj["statut"],curUserRangIndice);
+            
+            chargerInputTagUnique('env_ori',g_tab_code["env_ori"],obj["env_ori"],curUserRangIndice, true);
+            
+            chargerInputTagUnique('env_dest',g_tab_code["env_dest"],obj["env_dest"],curUserRangIndice, true);            
+            
+            chargerTagMultible("categorie",g_tab_code["categorie"],obj["categorie"],curUserRangIndice,true,g_size_list_tag["categorie"]);
+            
+            chargerTagMultible("sous_categorie",g_tab_code["sous_categorie"],obj["sous_categorie"],curUserRangIndice,true,g_size_list_tag["sous_categorie"]);
+                    
+            //------------------------------------------------------------------
+            // TP
+            var strhtml = "<input type=\"text\" name=\"input_tp\" id=\"input_tp\" value=\""+change_vide(obj["tp"],0,"note")+"\" data-mini=\"true\" placeholder=\"temps pass&eacute; 00.00JH\" onkeyup=\"ecoute(this, event.keyCode);\" onblur=\"onblurInput(this);\" onfocus=\"onfocusInput(this);\" />";
+            $('#div_input_tp').html(strhtml).trigger('create');
+            g_tab_testInput["input_tp"]=true;
+
+            //------------------------------------------------------------------
+            // responsable
+            var strhtml = "N.A.";
+            if((typeof obj["respon"][0] != "undefined")){
+                strhtml = "<div data-role=\"controlgroup\" data-type=\"horizontal\" data-mini=\"true\">";
+                strhtml += "<a href=\"\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+obj["respon"][0]["nom"]+" "+obj["respon"][0]["prenom"]+"</a>";
+                strhtml += "<a href=\"javascript:supprimerRespon();\" data-role=\"button\" data-iconpos=\"notext\" data-icon=\"delete\">Supprimer</a>";
+                strhtml += "</div>";
+            }
+            $('#div_input_respon').html(strhtml).trigger('create');
+            
+            strhtml = "<ul id=\"autocomplete_respon\" data-role=\"listview\" data-inset=\"true\" data-filter=\"true\" data-filter-placeholder=\"2 lettres au moins...\"></ul>";
+            $('#div_input_respon_search').html(strhtml).trigger('create');
+
+            $( "#autocomplete_respon").on( "filterablebeforefilter", function ( e, data ) {
+                var $ul = $( this );
+                $input = $( data.input );
+                value = $input.val();
+                var id = this.id;
+                html = "";
+                $ul.html( "" );
+                var taille_autocomple_min = 2;
+                if ( value && value.length >= taille_autocomple_min ) {
+                    $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+                    $ul.listview( "refresh" );
+                    var tabInput = { recherche : $input.val(), id_toc : g_id };
+                    var json_retour = callBD("phpsql/mysql_getRespon.php", "POST", "json", tabInput);
+                    for(var indice in json_retour["data"]["resultat"]["data"]){
+                        html += "<li><a href=\"javascript:setRespon('"+json_retour["data"]["resultat"]["data"][indice]["id"]+"','"+json_retour["data"]["resultat"]["data"][indice]["nom"]+" "+json_retour["data"]["resultat"]["data"][indice]["prenom"]+"')\">"+json_retour["data"]["resultat"]["data"][indice]["label"]+"</a></li>";
+                    }
+                    $ul.html( html );
+                    $ul.listview( "refresh" );
+                    $ul.trigger( "updatelayout");
+                }
+            });
+            
+            //------------------------------------------------------------------
+            //system
+            $('#div_input_id').html(change_vide(obj["id"]));
+            $('#div_input_dateCreation').html(change_vide(obj["date_creation"]));
+            $('#div_input_auteur').html(change_vide(obj["auteur"]));
+            $('#div_input_dateModif').html(change_vide(obj["date_modification"]));
+            $('#div_input_auteurModif').html(change_vide(obj["auteur_modification"]));
+            $('#div_input_dateLock').html(change_vide(obj["date_lock"]));
+            $('#div_input_auteurLock').html(change_vide(obj["auteur_lock"]));
+            
+            //------------------------------------------------------------------
+            // version
+            var version = "N.A.";
+            if((typeof obj["version"] != "undefined")){
+                version = obj["version"];
+            }
+            $('#div_input_version').html(version).trigger('create');
+            
+            //------------------------------------------------------------------
+            /*Description*/
+            var description = "";
+            var description_id = "null";
+            if(obj["description"].length > 0){
+                description_id = obj["description"][0]["id"];
+                description = obj["description"][0]["note"];
+            }
+            var strhtml = "<div data-role=\"fieldcontain\"><textarea name=\"input_description\" id=\"input_description\" placeholder=\"votre note ici\" onkeyup=\"refreshUsed(this, event.keyCode);\">"+description+"</textarea></div>";
+            strhtml += "<label for=\"input_description\" id=\"tips_input_description\" style=\"width: 100%\"></label>";
+            strhtml += "<a class=\"ui-disabled\" id=\"bouton_input_description\" href=\"javascript:updateNote('input_description', "+description_id+", "+g_tab_code["description"]+");\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\">Mettre &agrave; jour</a>";
+            $('#div_input_description').html(strhtml).trigger('create');
+            
+            //------------------------------------------------------------------
+            // Relations
+            var strhtml = "";
+            strhtml += "<a data-inline=\"true\" data-role=\"button\" data-icon=\"arrow-r\" data-iconpos=\"notext\" href=\"#\"></a><a href=\"#\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\">"+label+"</a><a data-inline=\"true\" data-role=\"button\" data-icon=\"arrow-r\" data-iconpos=\"notext\" href=\"#\"></a>";
+            $('#div_relations_id_toc').html(strhtml).trigger('create');
+            
+            chargerRelations(g_id, obj);
+            
+            //------------------------------------------------------------------
+            /*Cause*/
+            chargerTagMultible("causes_tags",g_tab_code["causes_tags"],obj["causes_tags"],curUserRangIndice,true,g_size_list_tag["causes_tags"]);
+        
+            var causes_note = "";
+            var causes_note_id = "null";
+            if(obj["causes_note"].length > 0){
+                causes_note_id = obj["causes_note"][0]["id"];
+                causes_note = obj["causes_note"][0]["note"];
+            }
+            var strhtml = "<div data-role=\"fieldcontain\"><textarea name=\"input_causes_note\" id=\"input_causes_note\" placeholder=\"votre note ici\" onkeyup=\"refreshUsed(this, event.keyCode);\">"+causes_note+"</textarea></div>";
+            strhtml += "<label for=\"input_causes_note\" id=\"tips_input_causes_note\" style=\"width: 100%\"></label>";
+            strhtml += "<a class=\"ui-disabled\" id=\"bouton_input_causes_note\" href=\"javascript:updateNote('input_causes_note', "+causes_note_id+", "+g_tab_code["causes_note"]+");\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\">Mettre &agrave; jour</a>";
+            $('#div_input_causes_note').html(strhtml).trigger('create');
+                   
+            chargerPjs(g_tab_code["causes_pjs"]);
+            var strhtml = "";
+            strhtml += "<label for=\"causes_pjs\">Votre fichier :</label>";
+            strhtml += "<input type=\"file\" name=\"causes_pjs\" id=\"causes_pjs\" value=\"\" data-clear-btn=\"true\" onchange=\"javascript:upload(this,"+g_tab_code["causes_pjs"]+");\"/>";
+            strhtml += "<div id=\"retour_upload_causes_pjs\"></div>";
+            $('#div_input_causes_pjs').html(strhtml).trigger('create');
+            
+            //------------------------------------------------------------------
+            /*impacts*/
+            chargerTagMultible("impacts_tags",g_tab_code["impacts_tags"],obj["impacts_tags"],curUserRangIndice,true,g_size_list_tag["impacts_tags"]);
+            
+            var impacts_note = "";
+            var impacts_note_id = "null";
+            if(obj["impacts_note"].length > 0){
+                impacts_note_id = obj["impacts_note"][0]["id"];
+                impacts_note = obj["impacts_note"][0]["note"];
+            }
+            var strhtml = "<div data-role=\"fieldcontain\"><textarea name=\"input_impacts_note\" id=\"input_impacts_note\" placeholder=\"votre note ici\" onkeyup=\"refreshUsed(this, event.keyCode);\">"+impacts_note+"</textarea></div>";
+            strhtml += "<label for=\"input_impacts_note\" id=\"tips_input_impacts_note\" style=\"width: 100%\"></label>";
+            strhtml += "<a class=\"ui-disabled\" id=\"bouton_input_impacts_note\" href=\"javascript:updateNote('input_impacts_note', "+impacts_note_id+", "+g_tab_code["impacts_note"]+");\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\">Mettre &agrave; jour</a>";
+            $('#div_input_impacts_note').html(strhtml).trigger('create');
+            
+            chargerPjs(g_tab_code["impacts_pjs"]);
+            var strhtml = "";
+            strhtml += "<label for=\"impacts_pjs\">Votre fichier :</label>";
+            strhtml += "<input type=\"file\" name=\"impacts_pjs\" id=\"impacts_pjs\" value=\"\" data-clear-btn=\"true\" onchange=\"javascript:upload(this,"+g_tab_code["impacts_pjs"]+");\"/>";
+            strhtml += "<div id=\"retour_upload_impacts_pjs\"></div>";
+            $('#div_input_impacts_pjs').html(strhtml).trigger('create');
+            
+            //------------------------------------------------------------------
+            /*repro*/
+            chargerTagMultible("repro_tags",g_tab_code["repro_tags"],obj["repro_tags"],curUserRangIndice,true,g_size_list_tag["repro_tags"]);
+            
+            var repro_note = "";
+            var repro_note_id = "null";
+            if(obj["repro_note"].length > 0){
+                repro_note_id = obj["repro_note"][0]["id"];
+                repro_note = obj["repro_note"][0]["note"];
+            }
+            var strhtml = "<div data-role=\"fieldcontain\"><textarea name=\"input_repro_note\" id=\"input_repro_note\" placeholder=\"votre note ici\" onkeyup=\"refreshUsed(this, event.keyCode);\">"+repro_note+"</textarea></div>";
+            strhtml += "<label for=\"input_repro_note\" id=\"tips_input_repro_note\" style=\"width: 100%\"></label>";
+            strhtml += "<a class=\"ui-disabled\" id=\"bouton_input_repro_note\"  href=\"javascript:updateNote('input_repro_note', "+repro_note_id+", "+g_tab_code["repro_note"]+");\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\">Mettre &agrave; jour</a>";
+            $('#div_input_repro_note').html(strhtml).trigger('create');
+            
+            chargerPjs(g_tab_code["repro_pjs"]);
+            var strhtml = "";
+            strhtml += "<label for=\"repro_pjs\">Votre fichier :</label>";
+            strhtml += "<input type=\"file\" name=\"repro_pjs\" id=\"repro_pjs\" value=\"\" data-clear-btn=\"true\" onchange=\"javascript:upload(this,"+g_tab_code["repro_pjs"]+");\"/>";
+            strhtml += "<div id=\"retour_upload_repro_pjs\"></div>";
+            $('#div_input_repro_pjs').html(strhtml).trigger('create');
+            
+            //------------------------------------------------------------------
+            /*reso*/
+            chargerTagMultible("reso_tags",g_tab_code["reso_tags"],obj["reso_tags"],curUserRangIndice,true,g_size_list_tag["reso_tags"]);
+            
+            var reso_note = "";
+            var reso_note_id = "null";
+            if(obj["reso_note"].length > 0){
+                reso_note_id = obj["reso_note"][0]["id"];
+                reso_note = obj["reso_note"][0]["note"];
+            }
+            var strhtml = "<div data-role=\"fieldcontain\"><textarea name=\"input_reso_note\" id=\"input_reso_note\" placeholder=\"votre note ici\" onkeyup=\"refreshUsed(this, event.keyCode);\">"+reso_note+"</textarea></div>";
+            strhtml += "<label for=\"input_reso_note\" id=\"tips_input_reso_note\" style=\"width: 100%\"></label>";
+            strhtml += "<a class=\"ui-disabled\" id=\"bouton_input_reso_note\"  href=\"javascript:updateNote('input_reso_note', "+reso_note_id+", "+g_tab_code["reso_note"]+");\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" title=\"Mettre &agrave; jour\" data-icon=\"check\">Mettre &agrave; jour</a>";
+            $('#div_input_reso_note').html(strhtml).trigger('create');
+            
+            chargerPjs(g_tab_code["reso_pjs"]);
+            var strhtml = "";
+            strhtml += "<label for=\"reso_pjs\">Votre fichier :</label>";
+            strhtml += "<input type=\"file\" name=\"reso_pjs\" id=\"reso_pjs\" value=\"\" data-clear-btn=\"true\" onchange=\"javascript:upload(this,"+g_tab_code["reso_pjs"]+");\"/>";
+            strhtml += "<div id=\"retour_upload_reso_pjs\"></div>";
+            $('#div_input_reso_pjs').html(strhtml).trigger('create');
+            
+            //------------------------------------------------------------------
+            //Fin chargement
+            $( "#content_noa" ).collapsible( "expand" );
+            
+            //------------------------------------------------------------------
+            if(((g_label == null)||(g_label == ""))&&(label != "")){
+                chargerDetailsOceane(label);
+                $( "#content_oceane" ).collapsible( "collapse" );
+                chargerDetailsAutomate(label);
+                $( "#content_automate" ).collapsible( "collapse" );
+                document.title = getParameter("nom_site") + " - " + label;
+                $('#id_titre').html(change_vide(label));
+            }
+        } catch (er) {
+           log(0, "ERROR(vueModeEdtion):" + er.message);
+        }
+    }
+    
+    ///////////////////
+    //BLOCK FONCTIONS TECHNIQUE
+    ///////////////////
+    /**
+     * send
+     */
+    function send(p_fichiers, p_type_id) {
+        try {
+            var retour = {};
+            
+            var strUrl = 'php/upload.php?id='+g_id+'&id_type='+p_type_id+'&code_user='+auth;
+            
+            var ajax = $.ajax({
+                url: strUrl,
+                data: p_fichiers,
+                cache: false,
+                contentType: false,
+                processData: false,
+                type: 'POST',
+                async:false,
+                success : function(p_resultat, p_statut){
+                    var json_retour = JSON.parse(p_resultat);
+                    retour["appel"] = "ok";
+                    retour["code"] = json_retour["data"]["code"];
+                    retour["message"] = json_retour["data"]["message"];
+                },
+                error : function(p_resultat, p_statut, p_erreur){
+                    var json_retour = JSON.parse(p_resultat);
+                    retour["appel"] = "ko";
+                    retour["code"] = json_retour["data"]["code"];
+                    retour["message"] = json_retour["data"]["message"];
+                }
+            });   
+            
+            return retour;
+        } catch (er) {
+            log(0, "ERROR(upload):" + er.message);
+        }
+    }
+    
+    </script>
+
+</head>
+<body onload="OnLoad();">
+
+    <!-- page -->
+    <div data-role="page" data-title="Titre">
+
+        <!-- /panel -->
+        <div data-role="panel" id="mypanel" data-display="overlay" data-position="left">
+
+        </div>
+        <!-- /panel -->
+
+        <!-- header -->
+        <div data-role="header" data-position="fixed">
+            <a href="#mypanel" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+            <h1 id="id_titre">titre</h1>
+            <a href="javascript:window.location = ('./page_contact.html?mili='+getMilise());" data-role="button" data-icon="info" data-iconpos="notext">Contact</a>
+        </div>
+        <!-- /header -->
+
+        <!-- content -->
+        <div data-role="content" id="main_content">
+            
+            <!-- PopUp -->
+            <div data-role="popup" id="popupNewTag" class="ui-corner-all">
+                <div style="padding:10px 20px;">
+                    <h4>Cr&eacute;er un tag</h4>
+                    <label for="input_new_label" id="label_input_new_label">Label</label>
+                    <input type="text" name="input_new_label" id="input_new_label" value="" placeholder="mon label" onkeyup="ecoute(this, event.keyCode);" onblur="onblurInput(this);" onfocus="onfocusInput(this);" />
+                    <label for="input_new_label" id="tips_input_new_label" style="width: 100%"></label>
+
+                    <label for="input_new_descri" id="label_input_new_descri">Description</label>
+                    <input type="text" name="input_new_descri" id="input_new_descri" value="" placeholder="ma description" onkeyup="ecoute(this, event.keyCode);" onblur="onblurInput(this);" onfocus="onfocusInput(this);" />
+                    <label for="input_new_descri" id="tips_input_new_descri" style="width: 100%"></label>
+
+                    <a data-role="button" data-icon="check" href="javascript:AjouterTag();">Cr&eacute;er</a>
+                </div>
+            </div>
+            <!-- /PopUp -->
+            
+            <!-- Menu -->
+            <div class="ui-grid-b ui-responsive">
+                <div class="ui-block-a"><div id="button_back"></div></div>
+                <div class="ui-block-b">
+                    <center>
+                        <table>
+                            <tr>
+                                <td><div id="div_link_notes"></div></td>
+                                <td><div id="div_link_histo"></div></td>
+                                <td><div id="div_link_oceane"></div></td>
+                                <td><div id="div_link_automate"></div></td>
+                            </tr>
+                        </table>
+                    </center>
+                </div>
+                <div class="ui-block-b" style="text-align: right"><div id="action_button"></div></div>
+            </div>
+            <!-- /Menu -->
+            
+            <!-- Infos Noa -->
+            <div data-role="collapsible" data-collapsed="true" data-mini="true" id="content_noa">
+                <h4>Informations NOA</h4>
+                
+                <!-- Context -->
+                <div data-role="collapsible" data-collapsed="false" data-mini="true" id="content_context">
+                    <h4>D&eacute;tails contexte</h4>
+                    <div class="ui-grid-d ui-responsive">
+			<div class="ui-block-a">
+                            <div class="ui-bar ui-bar-d"><b>Nature</b></div>
+                        </div>
+			<div class="ui-block-b">
+                            <div class="ui-bar ui-bar-d"><b>Cat&eacute;gorie</b></div>
+                        </div>
+			<div class="ui-block-c">
+                            <div class="ui-bar ui-bar-d"><b>Sous-cat&eacute;gorie</b></div>
+                        </div>
+			<div class="ui-block-d">
+                            <div class="ui-bar ui-bar-d"><b>Priorit&eacute;</b></div>
+                        </div>
+                        <div class="ui-block-e">
+                            <div class="ui-bar ui-bar-d"><b>Criticit&eacute;</b></div>
+                        </div>
+                        
+                        <div class="ui-block-a">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_nature">N.A.</div>
+                                <label for="input_nature" id="tips_input_nature" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-b">
+                             <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_categorie">N.A.</div>
+                                <label for="input_categorie" id="tips_input_categorie" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-c">
+                             <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_sous_categorie">N.A.</div>
+                                <label for="input_sous_categorie" id="tips_input_sous_categorie" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-d">
+                             <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_priorite">N.A.</div>
+                                <label for="input_priorite" id="tips_input_priorite" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-e">
+                             <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_criticite">N.A.</div>
+                                <label for="input_criticite" id="tips_input_criticite" style="width: 100%"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="ui-block-a">
+                            <div class="ui-bar ui-bar-d"><b>Complexit&eacute;</b></div>
+                        </div>
+			<div class="ui-block-b">
+                            <div class="ui-bar ui-bar-d"><b>Reproductibilit&eacute;</b></div>
+                        </div>
+			<div class="ui-block-c">
+                            <div class="ui-bar ui-bar-d"><b>Statut</b></div>
+                        </div>
+                        <div class="ui-block-d">
+                            <div class="ui-bar ui-bar-d"><b>Environnement d'origine</b></div>
+                        </div>
+                        <div class="ui-block-e">
+                            <div class="ui-bar ui-bar-d"><b>Environnement destination</b></div>
+                        </div>
+                       
+			<div class="ui-block-a">
+                             <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_complexite">N.A.</div>
+                                <label for="input_complexite" id="tips_input_complexite" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-b">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_repro">N.A.</div>
+                                <label for="input_repro" id="tips_input_repro" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-c">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_statut">N.A.</div>
+                                <label for="input_statut" id="tips_input_statut" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-d">
+                             <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_env_ori">N.A.</div>
+                                <label for="input_env_ori" id="tips_input_env_ori" style="width: 100%"></label>
+                            </div>
+                        </div>
+                        <div class="ui-block-e">
+                             <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_env_dest">N.A.</div>
+                                <label for="input_env_dest" id="tips_input_env_dest" style="width: 100%"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="ui-block-a">
+                            <div class="ui-bar ui-bar-d" style="height:20px;">
+                                <label for="input_tp" id="label_input_tp"><b>Temps pass&eacute;</b></label>
+                            </div>
+                        </div>
+			<div class="ui-block-b">
+                            <div class="ui-bar ui-bar-d"><b>Affectation</b></div>
+                        </div>
+			<div class="ui-block-c">
+                            &nbsp;
+                        </div>
+                        <div class="ui-block-d">
+                            &nbsp;
+                        </div>
+                        <div class="ui-block-e">
+                            &nbsp;
+                        </div>
+                       
+			<div class="ui-block-a">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_tp">N.A.</div>
+                                <label for="input_tp" id="tips_input_tp" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-b">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_respon">N.A.</div>
+                                <div id="div_input_respon_search"></div>
+                            </div>
+                        </div>
+			<div class="ui-block-c">
+                            &nbsp;
+                        </div>
+			<div class="ui-block-d">
+                            &nbsp;
+                        </div>
+                        <div class="ui-block-e">
+                            &nbsp;
+                        </div>
+                        
+                    </div><!-- Fermeture Grid-->
+                    <div id="div_btUpdateContextTicket"></div>
+                    <br>
+                    
+                    <div class="ui-bar ui-bar-d">
+                        <b>Description</b>
+                    </div>
+                    <div class="ui-bar ui-bar-e">
+                        <div id="div_input_description">N.A.</div>
+                        <label for="input_description" id="tips_input_description" style="width: 100%"></label>
+                    </div>
+                    
+                    <br>
+                    
+                    <div class="ui-bar ui-bar-d">
+                        <b>Relations</b>
+                    </div>
+                    <div class="ui-bar ui-bar-e">
+                        <div class="ui-grid-b ui-responsive">
+                            <div class="ui-block-a" style="width: 40%;">
+                                <div id="div_relations_avant" style="text-align:center;vertical-align:middle">N.A.</div>
+                            </div>
+                            
+                            <div class="ui-block-b" style="width: 20%;">
+                                <div id="div_relations_id_toc" style="text-align:center;vertical-align:middle">N.A.</div>
+                            </div>
+                            
+                            <div class="ui-block-c" style="width: 40%;">
+                                <div id="div_relations_apres" style="text-align:center;vertical-align:middle">N.A.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Context -->
+                
+                <div class="ui-grid-b ui-responsive">
+                    <div class="ui-block-a" style="width: 48%;">
+                        <!-- Impacts -->
+                        <div data-role="collapsible" data-collapsed="false" data-mini="true" id="content_impacts">
+                            <h4>Impacts</h4>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Tags</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_impacts_tags">N.A.</div>
+                                <label for="input_impacts_tags" id="tips_input_impacts_tags" style="width: 100%"></label>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Note</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_impacts_note">N.A.</div>
+                                <label for="input_impacts_note" id="tips_input_impacts_note" style="width: 100%"></label>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Pi&egrave;ces Jointes</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_impacts_pjs">N.A.</div>
+                                <div id="div_input_impacts_pjs"></div>
+                            </div>
+                        </div>
+                        <!-- Impacts -->
+                    </div>
+                    
+                    <div class="ui-block-b" style="width: 4%;">
+                        &nbsp;
+                    </div>
+                    
+                    <div class="ui-block-c" style="width: 48%;">
+                        <!-- Réso -->
+                        <div data-role="collapsible" data-collapsed="false" data-mini="true" id="content_reso">
+                            <h4>Protocole de r&eacute;solution</h4>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Tags</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_reso_tags">N.A.</div>
+                                <label for="input_reso_tags" id="tips_input_reso_tags" style="width: 100%"></label>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Note</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_reso_note">N.A.</div>
+                                <label for="input_reso_note" id="tips_input_reso_note" style="width: 100%"></label>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Pi&egrave;ces Jointes</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_reso_pjs">N.A.</div>
+                                <div id="div_input_reso_pjs"></div>
+                            </div>
+                        </div>
+                        <!-- /Réso -->
+                    </div>
+                    
+                    <div class="ui-block-a" style="width: 48%;">
+                        <!-- Causes -->
+                        <div data-role="collapsible" data-collapsed="false" data-mini="true" id="content_causes">
+                            <h4>Causes</h4>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Tags</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_causes_tags">N.A.</div>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Note</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_causes_note">N.A.</div>
+                                <label for="input_causes_note" id="tips_input_causes_note" style="width: 100%"></label>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Pi&egrave;ces Jointes</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_causes_pjs">N.A.</div>
+                                <div id="div_input_causes_pjs"></div>
+                            </div>
+                        </div>
+                        <!-- /Causes -->
+                    </div>
+                    
+                    <div class="ui-block-b" style="width: 4%;">
+                        &nbsp;
+                    </div>
+                    
+                    <div class="ui-block-c" style="width: 48%;">
+                        <!-- Repro -->
+                        <div data-role="collapsible" data-collapsed="false" data-mini="true" id="content_repro">
+                            <h4>Protocole de reproduction</h4>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Tags</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_repro_tags">N.A.</div>
+                                <label for="input_repro_tags" id="tips_input_repro_tags" style="width: 100%"></label>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Note</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_input_repro_note">N.A.</div>
+                                <label for="input_repro_note" id="tips_input_repro_note" style="width: 100%"></label>
+                            </div>
+                            <div class="ui-bar ui-bar-d">
+                                <b>Pi&egrave;ces Jointes</b>
+                            </div>
+                            <div class="ui-bar ui-bar-e">
+                                <div id="div_repro_pjs">N.A.</div>
+                                <div id="div_input_repro_pjs"></div>
+                            </div>
+                        </div>
+                        <!-- /Repro -->
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                
+                <div data-role="collapsible" data-collapsed="false" data-mini="true" id="content_notes">
+                    <h4>Notes</h4>
+                        
+                    <div id="div_new_note"></div>
+
+                    <div id="div_notes"></div>
+                    
+                </div>
+                <!-- /Notes -->
+                
+                <!-- Sys -->
+                <div data-role="collapsible" data-collapsed="true" data-mini="true" id="content_systeme">
+                    <h4>D&eacute;tails syst&egrave;me</h4>
+                    <div class="ui-grid-d ui-responsive">
+			<div class="ui-block-a">
+                            <div class="ui-bar ui-bar-d" style="height:20px;">
+                                <label for="input_label" id="label_input_label"><b>Label</b></label>
+                            </div>
+                        </div>
+			<div class="ui-block-b"><div class="ui-bar ui-bar-d"><b>Date cr&eacute;ation</b></div></div>
+			<div class="ui-block-c"><div class="ui-bar ui-bar-d"><b>Auteur</b></div></div>
+			<div class="ui-block-d"><div class="ui-bar ui-bar-d"><b>Date modification</b></div></div>
+                        <div class="ui-block-e"><div class="ui-bar ui-bar-d"><b>Auteur modification</b></div></div>
+                        
+                        <div class="ui-block-a">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_label">N.A.</div>
+                                <label for="input_label" id="tips_input_label" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-b">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_dateCreation">N.A.</div>
+                            </div>
+                        </div>
+			<div class="ui-block-c">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_auteur">N.A.</div>    
+                            </div>
+                        </div>
+			<div class="ui-block-d">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_dateModif">N.A.</div>
+                            </div>
+                        </div>
+			<div class="ui-block-e">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_auteurModif">N.A.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ui-block-a"><div class="ui-bar ui-bar-d"><b>Date v&eacute;rouillage</b></div></div>
+			<div class="ui-block-b"><div class="ui-bar ui-bar-d"><b>Auteur v&eacute;rouillage</b></div></div>
+			<div class="ui-block-c"><div class="ui-bar ui-bar-d"><b>Visible par</b></div></div>
+                        <div class="ui-block-d"><div class="ui-bar ui-bar-d"><b>Editable par</b></div></div>
+                        <div class="ui-block-d"><div class="ui-bar ui-bar-d"><b>Version</b></div></div>
+                        
+                        <div class="ui-block-a">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_dateLock">N.A.</div>
+                            </div>
+                        </div>
+			<div class="ui-block-b">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_auteurLock">N.A.</div>
+                            </div>
+                        </div>
+			<div class="ui-block-c">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_visible">N.A.</div>
+                                <label for="div_input_visible" id="tips_input_visible" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-d">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_editable">N.A.</div>
+                                <label for="div_input_editable" id="tips_input_editable" style="width: 100%"></label>
+                            </div>
+                        </div>
+			<div class="ui-block-e">
+                            <div class="ui-bar ui-bar-e" style="min-height:20px;">
+                                <div id="div_input_version">N.A.</div>
+                                <label for="div_input_version" id="tips_input_version" style="width: 100%"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="div_button_saveUpdate"></div>
+                </div>
+                <!-- /Sys -->
+                
+                <!-- Histo -->
+                <div id="div_histoChange"></div>
+                <!-- /Histo -->
+                
+            </div>
+            <!-- /Infos Noa -->
+            
+            <!-- Infos Océane -->
+            <div id="detailsOceane"></div>
+            <!-- /Infos Océane -->
+            
+            <!-- Infos Autoamtes -->
+            <div id="detailsAutomate"></div>
+            <!-- /Infos Autoamtes -->
+        </div>
+        <!-- /content -->
+
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed">
+            <a data-role="button" data-icon="search" data-iconpos="notext" class="ui-btn-left" href="javascript:window.location = ('./page_faq.html?mili='+getMilise());">FAQ</a>
+            <h1 id="id_affichageUser">User</h1>
+            <a data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right" href="javascript:window.location = ('./page_sortie.html?mili='+getMilise());">Logout</a>
+        </div>
+        <!-- /footer -->
+
+    </div>
+    <!-- /page -->
+</body>
+</html>

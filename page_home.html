@@ -1,0 +1,448 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <!--META-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="API/css/themes/default/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="API/css/datatables/css/jquery.dataTables.css"/> 
+    <link rel="stylesheet" href="API/css/mycss.css" />
+    <link rel="stylesheet" href="css/mycss.css" />
+
+    <!--JS-->
+    <script type="text/javascript" src="API/js/jquery.min.js"></script>
+    <script type="text/javascript" src="API/js/jquery.mobile.min.js"></script>
+    <!--<script type="text/javascript" src="API/js/highcharts.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/modules/exporting.js"></script>-->
+    <script type="text/javascript" src="API/js/jquery.dataTables.min.js"></script> 
+    <script type="text/javascript" src="include/config.js"></script>
+    <script type="text/javascript" src="API/js/fonctions.js"></script>
+    <script type="text/javascript" src="js/fonctions.js"></script>
+
+    <script type="text/javascript">
+    checkMaintenance();
+    checkAuthentification();
+    
+    ///////////////////
+    //BLOCK VARIABLE GLOBAL
+    ///////////////////
+    var id_page = 1;
+    var g_tags;
+
+    ///////////////////
+    //BLOCK FONCTIONS EVENEMENTS
+    ///////////////////
+    //A la construction de la page
+    $(document).on('pageinit',function() {
+        try {
+            // Init commmun
+            init_commun();
+        } catch (er) {
+            log(0, "ERROR(init_home):" + er.message);
+        }
+    });
+
+    //Affichage de la page avant onload
+    $(document).on('pageshow',function() {
+        try {
+            show_commun();
+        } catch (er) {
+            log(0, "ERROR(show):" + er.message);
+        }
+    });
+
+    //Fin chargement page
+    function OnLoad() {
+        try {
+            messagesShow();
+            chargerTags();
+            chargerTicketsAffectes();
+            chargerTicketsResolus();
+            chargerTicketsOPS();
+            chargerTicketsModifies();
+        } catch (er) {
+            log(0, "ERROR(OnLoad):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS METIER
+    ///////////////////
+    function chargerTicketsAffectes() {
+        try {
+            var currentTime = new Date();
+            currentTime.setDate(currentTime.getDate() - 7);
+            
+            var annee = currentTime.getFullYear();
+            var mois = pad2(currentTime.getMonth()+1);
+            var jour = pad2(currentTime.getDate());
+            
+            var strDateTime = annee+"-"+mois+"-"+jour+" 00:00:01";
+            
+            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#inventaire').html(strhtml);
+            var tabInput = buildFiltresTickets({ core_dateTime_creation : strDateTime, core_dateTime_creation_option : "AP", core_respon : "SANSRESPON", core_statut : "1,2,3,4,7,8", core_statut_option : "list" });
+            callBD("phpsql/mysql_getTickets.php", "POST", "json", tabInput, "vueTicketsAffectes");
+            
+            var strParams = buildParams(tabInput);
+            var strhtml = '';
+            strhtml += '<a href="#" onclick="window.location = (\'./phpsql/mysql_getTickets.php?ODASortie=csv&ODAFilename=ExportCsvIncidentsNonAffectes'+strParams+'\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-action ui-btn-icon-left">CSV Export</a>';
+            strhtml += '<a href="#" onclick="window.location = (\'./page_inventaire.html?mili='+getMilise()+'&filtreGet=ok&core_dateTime_creation='+strDateTime+'&core_dateTime_creation_option=AP&core_respon=vide&core_statut=1,2,3,4,7,8&core_statut_option=list\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-search ui-btn-icon-left">Zoom</a>';
+            $('#inventaire_plus').html(strhtml).trigger('create');
+            
+        } catch (er) {
+            log(0, "ERROR(chargerTicketsAffectes):" + er.message);
+        }
+    }
+    
+    function chargerTicketsResolus() {
+        try {
+            var currentTime = new Date();
+            currentTime.setDate(currentTime.getDate() - 7);
+            
+            var annee = currentTime.getFullYear();
+            var mois = pad2(currentTime.getMonth()+1);
+            var jour = pad2(currentTime.getDate());
+            
+            var strDateTime = annee+"-"+mois+"-"+jour+" 00:00:01";
+            
+            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#inventaire0').html(strhtml);
+            var tabInput = buildFiltresTickets({ core_dateTime_modification : strDateTime, core_dateTime_modification_option : "AP", core_statut : 5 });
+            callBD("phpsql/mysql_getTickets.php", "POST", "json", tabInput, "vueTicketsResolus");
+            
+            var strParams = buildParams(tabInput);
+            var strhtml = '';
+            strhtml += '<a href="#" onclick="window.location = (\'./phpsql/mysql_getTickets.php?ODASortie=csv&ODAFilename=ExportCsvIncidentsResolus'+strParams+'\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-action ui-btn-icon-left">CSV Export</a>';
+            strhtml += '<a href="#" onclick="window.location = (\'./page_inventaire.html?mili='+getMilise()+'&filtreGet=ok&core_dateTime_creation='+strDateTime+'&core_dateTime_creation_option=AP&core_statut=5\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-search ui-btn-icon-left">Zoom</a>';
+            $('#inventaire0_plus').html(strhtml).trigger('create');
+        } catch (er) {
+            log(0, "ERROR(chargerTicketsResolus):" + er.message);
+        }
+    }
+    
+    function chargerTicketsModifies() {
+        try {
+            var currentTime = new Date();
+            currentTime.setDate(currentTime.getDate() - 7);
+            
+            var annee = currentTime.getFullYear();
+            var mois = pad2(currentTime.getMonth()+1);
+            var jour = pad2(currentTime.getDate());
+            
+            var strDateTime = annee+"-"+mois+"-"+jour+" 00:00:01";
+            
+            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#inventaire1').html(strhtml);
+            var tabInput = buildFiltresTickets({ core_dateTime_modification : strDateTime, core_dateTime_modification_option : "AP" });
+            callBD("phpsql/mysql_getTickets.php", "POST", "json", tabInput, "vueTicketsModifies");
+            
+            var strParams = buildParams(tabInput);
+            var strhtml = '';
+            strhtml += '<a href="#" onclick="window.location = (\'./phpsql/mysql_getTickets.php?ODASortie=csv&ODAFilename=ExportCsvIncidentsModifies'+strParams+'\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-action ui-btn-icon-left">CSV Export</a>';
+            strhtml += '<a href="#" onclick="window.location = (\'./page_inventaire.html?mili='+getMilise()+'&filtreGet=ok&core_dateTime_creation='+strDateTime+'&core_dateTime_creation_option=AP\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-search ui-btn-icon-left">Zoom</a>';
+            $('#inventaire1_plus').html(strhtml).trigger('create');
+        } catch (er) {
+            log(0, "ERROR(chargerTicketsModifies):" + er.message);
+        }
+    }
+    
+    function chargerTicketsOPS() {
+        try {
+            var currentTime = new Date();
+            currentTime.setDate(currentTime.getDate() - 365);
+            
+            var annee = currentTime.getFullYear();
+            var mois = pad2(currentTime.getMonth()+1);
+            var jour = pad2(currentTime.getDate());
+            
+            var strDateTime = annee+"-"+mois+"-"+jour+" 00:00:01";
+            
+            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#inventaire2').html(strhtml);
+            var tabInput = buildFiltresTickets({ core_nature : 30, core_dateTime_modification : strDateTime, core_dateTime_modification_option : "AP" });//Id Tag OPS
+            callBD("phpsql/mysql_getTickets.php", "POST", "json", tabInput, "vueTicketsOPS");
+            
+            var strParams = buildParams(tabInput);
+            var strhtml = '';
+            strhtml += '<a href="#" onclick="window.location = (\'./phpsql/mysql_getTickets.php?ODASortie=csv&ODAFilename=ExportCsvOPS'+strParams+'\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-action ui-btn-icon-left">CSV Export</a>';
+            strhtml += '<a href="#" onclick="window.location = (\'./page_inventaire.html?mili='+getMilise()+'&filtreGet=ok&core_nature=30\');" class="ui-btn ui-corner-all ui-btn-inline ui-icon-search ui-btn-icon-left">Zoom</a>';
+            $('#inventaire2_plus').html(strhtml).trigger('create');
+        } catch (er) {
+            log(0, "ERROR(chargerTicketsOPS):" + er.message);
+        }
+    }
+
+    ///////////////////
+    //BLOCK FONCTIONS BD
+    ///////////////////
+
+    ///////////////////
+    //BLOCK FONCTIONS AFFICHAGE
+    ///////////////////
+    function vueTicketsAffectes(p_retour){
+        try {
+            //incidents non affecté
+            chargerTableau('inventaire', p_retour);
+        } catch (er) {
+            log(0, "ERROR(vueTickets):" + er.message);
+        }
+    }
+    
+    function vueTicketsResolus(p_retour){
+        try {
+            //incidents résolu
+            chargerTableau('inventaire0', p_retour);
+        } catch (er) {
+            log(0, "ERROR(vueTickets):" + er.message);
+        }
+    }
+    
+    function vueTicketsOPS(p_retour){
+        try {
+            //OPS
+            chargerTableau('inventaire2', p_retour);
+        } catch (er) {
+            log(0, "ERROR(vueTickets):" + er.message);
+        }
+    }
+    
+    /**
+     * Affiche le tableau des derniers modifié
+     * 
+     * @param {type} p_retour
+     */
+    function vueTicketsModifies(p_retour){
+        try {
+            var objDataTable = objDataTableFromJsonArray(p_retour["data"]["resultat"]["data"]);
+            
+            //incidents modifié
+            var strhtml = "";
+            strhtml += '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_inventaire1"></table>';
+            $('#inventaire1').html(strhtml).trigger('create');
+            
+            var oTable = $('#table_inventaire1').dataTable( {
+                "oLanguage": {"sUrl": "css/datatables/dataTables_I8N/lang_FR.json"},
+                "sPaginationType": "full_numbers",
+                "aaData": objDataTable.data,
+                "aaSorting": [[1,'desc']],
+                "sScrollX": '100%',
+                "sScrollXInner": "2580px",
+                "bScrollCollapse": true,
+                "bAutoWidth": false,
+                "aoColumns": [
+                    { sTitle : "Label", sClass : "left", sWidth : "100px" },
+                    { sTitle : "Date modif", sClass : "center", sWidth : "140px" },
+                    { sTitle : "Statut", sClass : "left", sWidth: "90px" },
+                    { sTitle : "Priorité", sClass : "left", sWidth: "50px" },
+                    { sTitle : "Description", sClass: "left", sWidth: "2200px"}
+                ],
+                "aoColumnDefs": [
+                    {//Label
+                        "mRender": function ( data, type, row ) {
+                            return '<a target="_top" href="page_ticket.html?id_page='+id_page+'&id='+row[objDataTable.entete["idElem"]]+'&id_toc='+row[objDataTable.entete["label"]]+'&mili='+getMilise()+'">'+row[objDataTable.entete["label"]]+'</a>';
+                        },
+                        "aTargets": [ 0 ]
+                    },
+                    {//Date Modification
+                        "mRender": function ( data, type, row ) {
+                            if ( type == 'display' ) {
+                                return getShortStrDateTimeFrFromUs(row[objDataTable.entete["dateTime_modification"]]);
+                            }
+                            return row[objDataTable.entete["dateTime_modification"]];
+                        },
+                        "aTargets": [ 1 ]
+                    },
+                    {//Statut
+                        "mRender": function ( data, type, row ) {
+                            return tradId(row[objDataTable.entete["statut"]],"tag");
+                        },
+                        "aTargets": [ 2 ]
+                    },
+                    {//Priorité
+                        "mRender": function ( data, type, row ) {
+                            if ( type == 'display' ) {
+                                return tradId(row[objDataTable.entete["priorite"]],"tag");
+                            }
+                            return row[objDataTable.entete["priorite"]];
+                        },
+                        "aTargets": [ 3 ]
+                    },
+                    {//Description
+                        "mRender": function ( data, type, row ) {
+                            return row[objDataTable.entete["description"]];
+                        },
+                        "aTargets": [ 4 ]
+                    }
+                ]
+            });
+        } catch (er) {
+            log(0, "ERROR(vueTicketsModifies):" + er.message);
+        }
+    }
+    
+    function chargerTableau(p_div, p_data) {
+        try {
+            var objDataTable = objDataTableFromJsonArray(p_data["data"]["resultat"]["data"]);
+            
+            var strhtml = "";
+            strhtml += '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_'+p_div+'"></table>';
+            $('#'+p_div).html(strhtml).trigger('create');
+            
+            var oTable = $('#table_'+p_div).dataTable( {
+                "oLanguage": {"sUrl": "css/datatables/dataTables_I8N/lang_FR.json"},
+                "sPaginationType": "full_numbers",
+                "aaData": objDataTable.data,
+                "aaSorting": [[1,'desc']],
+                "sScrollX": '100%',
+                "sScrollXInner": "2580px",
+                "bScrollCollapse": true,
+                "bAutoWidth": false,
+                "aoColumns": [
+                    { sTitle : "Label", sClass : "left", sWidth : "100px" },
+                    { sTitle : "Date création", sClass : "center", sWidth : "140px" },
+                    { sTitle : "Statut", sClass : "left", sWidth: "90px" },
+                    { sTitle : "Priorité", sClass : "left", sWidth: "50px" },
+                    { sTitle : "Description", sClass: "left", sWidth: "2200px"}
+                ],
+                "aoColumnDefs": [
+                    {//Label
+                        "mRender": function ( data, type, row ) {
+                            return '<a target="_top" href="page_ticket.html?id_page='+id_page+'&id='+row[objDataTable.entete["idElem"]]+'&id_toc='+row[objDataTable.entete["label"]]+'&mili='+getMilise()+'">'+row[objDataTable.entete["label"]]+'</a>';
+                        },
+                        "aTargets": [ 0 ]
+                    },
+                    {//Date création
+                        "mRender": function ( data, type, row ) {
+                            if ( type == 'display' ) {
+                                return getShortStrDateTimeFrFromUs(row[objDataTable.entete["dateTime_creation"]]);
+                            }
+                            return row[objDataTable.entete["dateTime_creation"]];
+                        },
+                        "aTargets": [ 1 ]
+                    },
+                    {//Statut
+                        "mRender": function ( data, type, row ) {
+                            return tradId(row[objDataTable.entete["statut"]],"tag");
+                        },
+                        "aTargets": [ 2 ]
+                    },
+                    {//Priorité
+                        "mRender": function ( data, type, row ) {
+                            if ( type == 'display' ) {
+                                return tradId(row[objDataTable.entete["priorite"]],"tag");
+                            }
+                            return row[objDataTable.entete["priorite"]];
+                        },
+                        "aTargets": [ 3 ]
+                    },
+                    {//Description
+                        "mRender": function ( data, type, row ) {
+                            return row[objDataTable.entete["description"]];
+                        },
+                        "aTargets": [ 4 ]
+                    }
+                ]
+            });
+        } catch (er) {
+            log(0, "ERROR(chargerTableau):" + er.message);
+        }
+    }
+    
+    </script>
+  
+</head>
+<body onload="OnLoad();">
+
+    <!-- page -->
+    <div data-role="page" data-title="Titre">
+
+        <!-- /panel -->
+        <div data-role="panel" id="mypanel" data-display="overlay" data-position="left">
+
+        </div>
+        <!-- /panel -->
+
+        <!-- header -->
+        <div data-role="header" data-position="fixed">
+            <a href="#mypanel" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+            <h1 id="id_titre">titre</h1>
+            <a href="javascript:window.location = ('./page_contact.html?mili='+getMilise());" data-role="button" data-icon="info" data-iconpos="notext">Contact</a>
+        </div>
+        <!-- /header -->
+
+        <!-- content -->
+        <div data-role="content" id="main_content">
+            
+            <div class="ui-grid-b ui-responsive">
+                <div class="ui-block-a" style="width: 49%;">
+                    <!-- incidents non affecté -->
+                    <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                        <h4>Incidents non affect&eacute;s</h4>
+                        <div id="inventaire"></div>
+                        <br>
+                        <label id="inventaire_plus"></label>
+                    </div>
+                    <!-- /incidents non affecté -->
+                </div>
+
+                <div class="ui-block-b" style="width: 2%;">
+                    &nbsp;
+                </div>
+
+                <div class="ui-block-c" style="width: 49%;">
+                    <!-- incidents résolu -->
+                    <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                        <h4>Incidents r&eacute;solus</h4>
+                        <div id="inventaire0"></div>
+                        <br>
+                        <label id="inventaire0_plus"></label>
+                    </div>
+                    <!-- /incidents résolu -->
+                </div>
+
+                <div class="ui-block-a" style="width: 49%;">
+                    <!-- incidents modifié -->
+                    <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                        <h4>Incidents modifi&eacute;s</h4>
+                        <div id="inventaire1"></div>
+                        <br>
+                        <label id="inventaire1_plus"></label>
+                    </div>
+                    <!-- /incidents modifié -->
+                </div>
+
+                <div class="ui-block-b" style="width: 2%;">
+                    &nbsp;
+                </div>
+
+                <div class="ui-block-c" style="width: 49%;">
+                    <!-- OPS -->
+                    <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                        <h4>les op&eacute;rations de services</h4>
+                        <div id="inventaire2"></div>
+                        <br>
+                        <label id="inventaire2_plus"></label>
+                    </div>
+                    <!-- /OPS -->
+                </div>
+            </div>
+            
+        </div>
+        <!-- /content -->
+
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed">
+            <a data-role="button" data-icon="search" data-iconpos="notext" class="ui-btn-left" href="javascript:window.location = ('./page_faq.html?mili='+getMilise());">FAQ</a>
+            <h1 id="id_affichageUser">User</h1>
+            <a data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right" href="javascript:window.location = ('./page_sortie.html?mili='+getMilise());">Logout</a>
+        </div>
+        <!-- /footer -->
+
+    </div>
+    <!-- /page -->
+</body>
+</html>

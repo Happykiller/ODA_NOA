@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--META-->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="API/css/themes/default/jquery.mobile.min.css" />
+    <link rel="stylesheet" href="API/css/datatables/css/jquery.dataTables.css"/> 
+    <link rel="stylesheet" href="API/css/mycss.css" />
+    <link rel="stylesheet" href="css/mycss.css" />
+
+    <!--JS-->
+    <script type="text/javascript" src="API/js/jquery.min.js"></script>
+    <script type="text/javascript" src="API/js/jquery.mobile.min.js"></script>
+    <!--<script type="text/javascript" src="API/js/highcharts.js"></script>-->
+    <!--<script type="text/javascript" src="API/js/modules/exporting.js"></script>-->
+    <script type="text/javascript" src="API/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="include/config.js"></script>
+    <script type="text/javascript" src="API/js/fonctions.js"></script>
+    <script type="text/javascript" src="js/fonctions.js"></script>
+	
+    <script language="javascript" type="text/javascript">
+    checkMaintenance();
+    checkAuthentification();
+	
+    ///////////////////
+    //BLOCK VARIABLE GLOBAL
+    ///////////////////
+    var id_page = 5;
+    var user_edit = "";
+
+    ///////////////////
+    //BLOCK FONCTIONS EVENEMENTS
+    ///////////////////
+		
+    /**
+     * A la construction de la page
+     */
+    $(document).on('pageinit',function() {
+        try {
+            init_commun();
+        } catch (er) {
+            log(0, "ERROR(init_admin):" + er.message);
+        }
+    });
+		
+    /**
+     *  Affichage de la page avant onload
+     */
+    $(document).on('pageshow',function() {
+        try {
+            show_commun();
+        } catch (er) {
+            log(0, "ERROR(show):" + er.message);
+        }
+    });
+    
+    /**
+     * Fin chargement page
+     *
+     */    
+    function OnLoad() {
+        try {
+            afficheListUtilisateur();
+            afficheListDiffusion();
+            chargerMessages();
+        } catch (er) {
+            log(0, "ERROR(OnLoad):" + er.message);
+        }
+    }	
+		
+    ///////////////////
+    //BLOCK FONCTIONS METIER
+    ///////////////////
+    /**
+     * Affiche la liste des utilisateurs
+     * @returns {Boolean} 
+     */
+    function afficheListUtilisateur() {
+        try {
+            var retour = true;
+            
+            var tabInput = { indice_user : tabInfoLogin[0][3]};
+            var retour = callBD("API/phpsql/getListutilisateurs.php", "GET", "text", tabInput);
+            
+            var json_retour = JSON.parse(retour);
+            if(json_retour["strErreur"] == ""){
+                var objDataTable = objDataTableFromJsonArray(json_retour["data"]["lesParametres"]["data"]);
+                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_listUtilisateurs"></table></br></br>';
+                $('#div_listUtilisateurs').html(strhtml).trigger('create');
+            
+                var oTable = $('#table_listUtilisateurs').dataTable( {
+                    "oLanguage": {
+                        "sUrl": "API/css/datatables/dataTables_I8N/lang_FR.json"
+                    },
+                    "sPaginationType": "full_numbers",
+                    "aaData": objDataTable.data,
+                    "aaSorting": [[1,'desc']],
+                    "aoColumns": [
+                        { "sTitle": "Utilisateur","sClass": "Left" },
+                        { "sTitle": "Code utilisateur","sClass": "center" },
+                        { "sTitle": "Mail","sClass": "Left" },
+                        { "sTitle": "Description","sClass": "Left" },
+                        { "sTitle": "Actif","sClass": "center" },
+                        { "sTitle": "Rang","sClass": "Left" },
+                        { "sTitle": "Actions","sClass": "center" }
+                    ],
+                    "aoColumnDefs": [
+                        {//Nom Prenom
+                            "mRender": function ( data, type, row ) {
+                                return row[2] + ", " + row[3];
+                            },
+                            "aTargets": [ 0 ]
+                        },
+                        {//code_user
+                            "mRender": function ( data, type, row ) {
+                                return row[0];
+                            },
+                            "aTargets": [ 1 ]
+                        },
+                        {//Mail
+                            "mRender": function ( data, type, row ) {
+                                return row[1];
+                            },
+                            "aTargets": [ 2 ]
+                        },
+                        {//Description
+                            "mRender": function ( data, type, row ) {
+                                return row[5];
+                            },
+                            "aTargets": [ 3 ]
+                        },
+                        {//Actif
+                            "mRender": function ( data, type, row ) {
+                                return row[6];
+                            },
+                            "aTargets": [ 4 ]
+                        },
+                        {//Rang
+                            "mRender": function ( data, type, row ) {
+                                return row[4];
+                            },
+                            "aTargets": [ 5 ]
+                        },
+                        {//Action
+                            "mRender": function ( data, type, row ) {
+                                var strHtml = "";
+                                strHtml += '<a href="javascript:editer(\''+row[0]+'\')" data-role="button" data-icon="gear" data-inline="true" id="bt_edit_'+row[0]+'" data-mini="true">Editer</a>';
+                                return strHtml;
+                            },
+                            "aTargets": [ 6 ]
+                        }
+                    ],
+                    "fnDrawCallback": function( oSettings ) {
+                        $('#table_listUtilisateurs').trigger('create');
+                    } 
+                });
+            } else{
+                $('#div_listUtilisateurs').html(json_retour["strErreur"]);
+            }
+            
+            return retour;
+        }
+        catch (er) {
+            log(0, "ERROR(afficheListUtilisateur):" + er.message);
+            return false;
+        }
+    }
+    
+    /**
+     * Affiche la liste de diffusion pour le site
+     * @returns {Boolean} 
+     */
+    function afficheListDiffusion() {
+        try {
+            var tabInput = {};
+            var retour = callBD("API/phpsql/getListMail.php", "GET", "text", tabInput);
+            
+            var json_retour = JSON.parse(retour);
+            if(json_retour["strErreur"] == ""){
+                var strhtml = getHtmlListDiffusion(json_retour["data"]["lesParametres"]["data"]);
+                $('#div_listDiffusion').html(strhtml).trigger('create');
+            } else{
+                $('#div_listDiffusion').html(json_retour["strErreur"]);
+            }
+        }
+        catch (er) {
+            log(0, "ERROR(afficheListDiffusion):" + er.message);
+        }
+    }
+    
+    /**
+     * editer
+     * @param {string} p_code_user
+     */
+    function editer(p_code_user) {
+        try {
+            var tabInput = { code_user : p_code_user, indice_user : tabInfoLogin[0][3] };
+            var retour = callBD("API/phpsql/getDetailsUser.php", "POST", "text", tabInput);
+            var json_retour = JSON.parse(retour);
+            if(json_retour["strErreur"] == ""){
+                user_edit = p_code_user;
+                $('#label_edit_code_user').text(p_code_user);
+                $('#edit_mail').val(json_retour["data"]["detailsUser"]["data"][0]["mail"]);
+                $('#edit_actif').val(json_retour["data"]["detailsUser"]["data"][0]["actif"]);
+                
+                var strHtml = '<label for="input_rang" class="select">Rang :</label>';
+                strHtml += '<select name="input_rang" id="input_rang">';
+                strHtml += '<option>Choisir...</option>';
+                for (var indice in json_retour["data"]["lesRangs"]["data"]) {
+                    if(json_retour["data"]["detailsUser"]["data"][0]["profile"] == json_retour["data"]["lesRangs"]["data"][indice]["indice"]){
+                        strHtml += '<option selected value="'+json_retour["data"]["lesRangs"]["data"][indice]["indice"]+'">'+json_retour["data"]["lesRangs"]["data"][indice]["labelle"]+'</option>';
+                    }else{
+                        strHtml += '<option value="'+json_retour["data"]["lesRangs"]["data"][indice]["indice"]+'">'+json_retour["data"]["lesRangs"]["data"][indice]["labelle"]+'</option>';
+                    }   
+                }
+                strHtml += '</select>';
+                $('#div_edit_rang').html(strHtml).trigger('create');
+
+                $('#edit_user').css("display", "inline");
+            }else{
+                notification("Aie erreur!", _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(editer):" + er.message);
+        }
+    }	
+    
+    /**
+     * validerEdition
+     */
+    function validerEdition() {
+        try {
+            var code_user = user_edit;
+            var mail = $('#edit_mail').val();
+            var actif = $('#edit_actif').val();
+            var rang = $('#input_rang').val();
+            
+            if((mail != "")&&(actif != "")&&(rang != "")){
+                var tabInput = { code_user : code_user, mail : mail, actif : actif, rang : rang };
+                var retour = callBD("API/phpsql/updateUser.php", "POST", "text", tabInput);
+                var json_retour = JSON.parse(retour);
+                if(json_retour["strErreur"] == ""){
+                    user_edit = "";
+                    $('#edit_mail').val("");
+                    $('#edit_actif').val("");
+                    $('#div_edit_rang').html("").trigger('create');
+                    $('#edit_user').css("display", "none");
+                    afficheListUtilisateur();
+                    notification("Modification ok.", _INFO);
+                }else{
+                    notification("Erreur interface.", _ALERT);
+                }
+            }else{
+                notification("Un champ est vide.", _ALERT);
+            }
+        } catch (er) {
+            log(0, "ERROR(validerEdition):" + er.message);
+        }
+    }
+    
+    /**
+     * annulerEditionUser
+     */
+    function annulerEditionUser() {
+        try {
+            $('#edit_mail').val("");
+            $('#edit_actif').val("");
+            $('#div_edit_rang').html("").trigger('create');
+            $('#edit_user').css("display", "none");
+        } catch (er) {
+            log(0, "ERROR(annulerEditionUser):" + er.message);
+        }
+    }
+    
+    /**
+     * chargerMessages
+     */
+    function chargerMessages(){
+        try {
+            var strhtml = "<IMG SRC=\"API/img/loading.gif\" ALT=\"Chargement\" TITLE=\"Chargement\">";
+            $('#div_messages').html(strhtml);
+            var tabInput = { code_user : auth };
+            callBD("API/phpsql/getMessages.php", "POST", "text", tabInput, "retourMessages");          
+        }
+        catch (er) {
+            log(0, "ERROR(chargerMessages):" + er.message);
+        }
+    }
+    
+    /**
+     * afficherCreerMessage
+     */
+    function afficherCreerMessage(){
+        try {
+            $('#creer_message').css("display", "inline");     
+        }
+        catch (er) {
+            log(0, "ERROR(afficherCreerMessage):" + er.message);
+        }
+    }
+    
+    /**
+     * annulerMessage
+     */
+    function annulerMessage() {
+        try {
+            $('#input_message').val("");
+            $('#input_niveau').val("");
+            $('#input_date_expiration').val("");
+            $('#input_profile').val("");
+            $('#creer_message').css("display", "none");
+        } catch (er) {
+            log(0, "ERROR(annulerMessage):" + er.message);
+        }
+    }
+    
+    /**
+     * creeMessage
+     */
+    function creeMessage() {
+        try {
+            var input_message = $('#input_message').val();
+            var input_niveau = $('#input_niveau').val();
+            var input_date_expiration = $('#input_date_expiration').val();
+            var input_profile = $('#input_profile').val();
+            
+            if((input_message != "") && (input_niveau != "") && (input_profile != "")){
+                var tabInput = { code_user : auth, message : input_message, niveau : input_niveau, date_expiration : input_date_expiration, profile : input_profile };
+                var retour = callBD("API/phpsql/addMessage.php", "POST", "text", tabInput);
+                var json_retour = JSON.parse(retour);
+                if(json_retour["strErreur"] == ""){
+                    notification("Message bien enregistr&eacute;.", _INFO); 
+                    $('#input_message').val("");
+                    $('#input_niveau').val("");
+                    $('#input_date_expiration').val("");
+                    $('#input_profile').val("");
+                    $('#creer_message').css("display", "none");
+                    chargerMessages();
+                }else{
+                    notification("Aie erreur!", _ALERT);
+                }
+            }else{
+                notification("Merci de tout remplir.", _ALERT);
+            } 
+            
+        } catch (er) {
+            log(0, "ERROR(creeMessage):" + er.message);
+        }
+    }
+		
+    ///////////////////
+    //BLOCK FONCTIONS AFFICHAGE
+    ///////////////////
+    /**
+     * getHtmlListDiffusion
+     * @param {array} p_tabListDiffusion
+     * @returns {String}
+     */
+    function getHtmlListDiffusion(p_tabListDiffusion) {
+        try {
+            var strResponse = "";
+
+            for (var indice in p_tabListDiffusion) {
+                strResponse += p_tabListDiffusion[indice]["mail"] + ";";
+            }
+
+            return strResponse;
+        }
+        catch (er) {
+            log(0, "ERROR(getHtmlListDiffusion):" + er.message);
+        }
+    }	
+    
+    /**
+     * retourMessages
+     * 
+     * @param {array} p_retour
+     */
+    function retourMessages(p_retour){
+        try {
+            var json_retour = JSON.parse(p_retour);
+            if(json_retour["strErreur"] == ""){
+                var strhtml = '<table cellpadding="0" cellspacing="0" border="0" class="display" id="table_messages"></table></br></br>';
+                strhtml += '<a href="javascript:afficherCreerMessage()" data-role="button" data-icon="plus" id="bt_creer_message" data-mini="true" data-inline="true">Cr&eacute;er un message</a>';
+                $('#div_messages').html(strhtml).trigger('create');
+                
+                var objDataTable = objDataTableFromJsonArray(json_retour["data"]["messages"]["data"]);
+                var oTable = $('#table_messages').dataTable( {
+                    "oLanguage": {
+                        "sUrl": "API/css/datatables/dataTables_I8N/lang_FR.json"
+                    },
+                    "sPaginationType": "full_numbers",
+                    "aaData": objDataTable.data,
+                    "aaSorting": [[6,'desc']],
+                    "aoColumns": [
+                        { sTitle: "actif", sClass: "left"  },
+                        { sTitle: "message", sClass: "left"  },
+                        { sTitle: "profile", sClass: "left"  },
+                        { sTitle: "niveau", sClass: "left"  },
+                        { sTitle: "date_expiration", sClass: "left"  },
+                        { sTitle: "code_user_creation", sClass: "left"  },
+                        { sTitle: "date_creation", sClass: "left"  }
+                    ],
+                   aoColumnDefs: [
+                        {//actif
+                            mRender: function ( data, type, row ) {
+                                var strHtml = String(row[1]);
+                                return strHtml;
+                            },
+                            aTargets: [ 0 ]
+                        },
+                        {//message
+                            mRender: function ( data, type, row ) {
+                                var strHtml = String(row[2]);
+                                return strHtml;
+                            },
+                            aTargets: [ 1 ]
+                        },
+                        {//profile
+                            mRender: function ( data, type, row ) {
+                                var strHtml = String(row[3]);
+                                return strHtml;
+                            },
+                            aTargets: [ 2 ]
+                        },
+                        {//niveau
+                            mRender: function ( data, type, row ) {
+                                var strHtml = String(row[4]);
+                                return strHtml;
+                            },
+                            aTargets: [ 3 ]
+                        },
+                        {//date_expiration
+                            mRender: function ( data, type, row ) {
+                                var strHtml = String(row[5]);
+                                return strHtml;
+                            },
+                            aTargets: [ 4 ]
+                        },
+                        {//code_user_creation
+                            mRender: function ( data, type, row ) {
+                                var strHtml = String(row[6]);
+                                return strHtml;
+                            },
+                            aTargets: [ 5 ]
+                        },
+                        {//date_creation
+                            mRender: function ( data, type, row ) {
+                                var strHtml = String(row[7]);
+                                return strHtml;
+                            },
+                            aTargets: [ 6 ]
+                        }
+                    ],
+                    "fnDrawCallback": function( oSettings ) {
+                        $('#table_messages').trigger('create');
+                    } 
+                });
+                
+            } else{
+                $('#div_messages').html(json_retour["strErreur"]).trigger("create");
+            }
+        } catch (er) {
+            $('#div_content_messages').css("display", "none");
+        }
+    }
+    </script>
+	
+  </head>
+  <body onload="OnLoad();">
+    
+    <!-- page -->
+    <div data-role="page" data-title="Titre">
+
+        <!-- /panel -->
+        <div data-role="panel" id="mypanel" data-display="overlay" data-position="left">
+
+        </div>
+        <!-- /panel -->
+
+        <!-- header -->
+        <div data-role="header" data-position="fixed">
+            <a href="#mypanel" data-role="button" data-icon="home" data-iconpos="notext">home</a>
+            <h1 id="id_titre">titre</h1>
+            <a href="javascript:window.location = ('./page_contact.html?mili='+getMilise());" data-role="button" data-icon="info" data-iconpos="notext">Contact</a>
+        </div>
+        <!-- /header -->
+         
+        <!-- navbar -->
+        <!-- /navbar -->
+
+        <!-- content -->
+        <div data-role="content" id="main_content">
+
+            <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                <h4>La liste des utilisateurs</h4>
+                <div id="div_listUtilisateurs">Anomalie code E009</div>
+                <div id="edit_user" style="display:none;">
+                    
+                    <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                        <h4><label id="label_edit_code_user">code_user</label></h4>
+                        Mail : <input type="text" name="edit_mail" id="edit_mail"  />
+                        Actif : <input type="number" name="edit_actif" id="edit_actif"  />
+                        <div id="div_edit_rang"></div>
+                        <a href="javascript:validerEdition()" data-role="button" data-icon="check" id="bt_valider" data-mini="true"  data-inline="true">Soumettre</a>
+                        <a href="javascript:annulerEditionUser()" data-role="button" data-icon="delete" id="bt_annuler_user" data-mini="true" data-inline="true">Annuler</a>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div data-role="collapsible" data-collapsed="false" data-mini="true" id="div_content_messages">
+                <h4>Les messages</h4>
+                <div id="div_messages"></div>
+                <div id="creer_message" style="display:none;">
+                    
+                    <div data-role="collapsible" data-collapsed="false" data-mini="true">
+                        <h4>Cr&eacute;er un message</h4>
+                        Message : <input type="text" name="input_message" id="input_message"  />
+                        Niveau d'alerte : <input type="text" name="input_niveau" id="input_niveau"  />
+                        Profile minimum : <input type="number" name="input_profile" id="input_profile"  />
+                        Date d'expiration (7J par defaut) : <input type="date" name="input_date_expiration" id="input_date_expiration"  />
+                        <a href="javascript:creeMessage()" data-role="button" data-icon="check" id="bt_cree_message" data-mini="true" data-inline="true">Soumettre</a>
+                        <a href="javascript:annulerMessage()" data-role="button" data-icon="delete" id="bt_annuler_user" data-mini="true" data-inline="true">Annuler</a>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div data-role="collapsible" data-collapsed="true" data-mini="true">
+                <h4>La liste de diffusion</h4>
+                <div id="div_listDiffusion">Anomalie code E009</div>
+            </div>
+            
+        </div>
+        <!-- /content -->
+        
+        <!-- footer -->
+        <div data-role="footer" data-position="fixed">
+            <a data-role="button" data-icon="search" data-iconpos="notext" class="ui-btn-left" href="javascript:window.location = ('./page_faq.html?mili='+getMilise());">FAQ</a>
+            <h1 id="id_affichageUser">User</h1>
+            <a data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right" href="javascript:window.location = ('./page_sortie.html?mili='+getMilise());">Logout</a>
+        </div>
+        <!-- /footer -->
+
+    </div>
+    <!-- /page -->
+</body>
+</html>

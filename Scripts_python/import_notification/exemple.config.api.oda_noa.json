@@ -1,0 +1,21 @@
+{
+	"config_notif": {
+		"dir_notif": "C:/mail"
+	},
+	"config_tag": {
+		"id_toc":{"tag_debut": "","longueur":0,"tag_partie":"N° ","tag_fin":""},
+		"date_signal":{"tag_debut": "Evénement signalé le :","longueur":1,"tag_partie":"","tag_fin":""},
+		"date_mail":{"tag_debut": "@mail","longueur":1,"tag_partie":"","tag_fin":""},
+		"basicat":{"tag_debut": "Basicat","longueur":1,"tag_partie":"","tag_fin":""},
+		"eds_origine":{"tag_debut": "EDS Origine :","longueur":1,"tag_partie":"","tag_fin":""},
+		"eds_destinataire":{"tag_debut": "EDS Destinataire :","longueur":1,"tag_partie":"","tag_fin":""},
+		"criticite":{"tag_debut": "Criticité :","longueur":1,"tag_partie":"","tag_fin":""},
+		"priorite":{"tag_debut": "Priorité :","longueur":1,"tag_partie":"","tag_fin":""},
+		"commentaires":{"tag_debut": "Commentaire de nos services :","longueur":0,"tag_partie":"","tag_fin":"Nous continuons à traiter ce ticket et restons à votre disposition pour vous apporter toutes précisions complémentaires."}
+	},
+	"config_db": {
+		"host": "10.85.32.5",
+		"db": "db_oda_noa",
+		"mdp": "odanoapass01"
+	}
+}

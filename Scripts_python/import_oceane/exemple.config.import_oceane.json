@@ -1,0 +1,20 @@
+{
+	"parameters": {
+		"path": "cheminConfigJson",
+		"type_log": "2"
+	},
+	"config_brise": {
+		"oceane_tickets_core": "http://10.173.7.132/ExtractBOXI/DISE%20SN3/ExtractionOceaneTickets_exemple.CSV",
+		"oceane_tickets_commentaires": "http://10.173.7.132/ExtractBOXI/DISE%20SN3/ExtractionOceaneTickets_commentaires_exemple.CSV"
+	},
+	"config_db_integration": {
+		"host": "ip",
+		"db": "log",
+		"mdp": "pass"
+	},
+	"config_db_supervision": {
+		"host": "ip",
+		"db": "log",
+		"mdp": "pass"
+	}
+}
